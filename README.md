@@ -18,7 +18,7 @@
 
 1. 克隆本仓库到本地：
    \`\`\`bash
-   git clone https://github.com/SherlockTimes/pro-lottery-system.git
+   git clone https://github.com/T1MESX/pro-lottery-system.git
    \`\`\`
 2. 直接使用现代浏览器（推荐 Chrome / Edge / Safari）双击打开 `index.html` 即可运行。
 
