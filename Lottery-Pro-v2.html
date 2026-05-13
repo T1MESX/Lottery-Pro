@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lottery Pro v2.0.0</title>
+    <title>Lottery Pro v2.0.1</title>
     <style>
         /* ================= 核心 CSS 变量系统 (支持暗黑主题无缝切换) ================= */
         :root {
@@ -250,9 +250,9 @@
     <canvas id="confettiCanvas"></canvas>
 
     <div class="top-controls">
-        <a class="top-btn" href="https://github.com/T1MESX/pro-lottery-system" target="_blank" title="GitHub Repository">
+        <a class="top-btn" href="https://github.com/T1MESX/Lottery-Pro" target="_blank" title="GitHub Repository">
             <svg height="18" viewBox="0 0 16 16" width="18" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-            v2.0.0
+            v2.0.1
         </a>
         <span>|</span>
         <span class="top-btn" onclick="toggleTheme()" title="Toggle Dark/Cinema Mode (Hotkey: D)">
@@ -275,8 +275,8 @@
     <div class="main-wrapper">
         <div class="panel lottery-panel">
             <h1>
-                <span class="lang-zh">🍿 抽奖终端 Pro 🍿</span>
-                <span class="lang-en">🍿 Lottery Pro Terminal 🍿</span>
+                <span class="lang-zh">🍿 抽奖终端 Pro v2 🍿</span>
+                <span class="lang-en">🍿 Lottery Pro Terminal v2 🍿</span>
             </h1>
             <h2 class="subtitle" id="activityTitle">
                 <span class="lang-zh">—— [在此替换您的活动名称] ——</span>
@@ -296,7 +296,7 @@
                         </label>
                         <div class="input-with-icon">
                             <input type="text" id="prizeNote" placeholder="">
-                            <label for="prizeImage" class="upload-icon-btn" title="上传奖品图片 / Upload Image">
+                            <label for="prizeImage" class="upload-icon-btn" title="上传图片 / Upload Image">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             </label>
                             <input type="file" id="prizeImage" accept="image/*" style="display:none;">
@@ -335,7 +335,7 @@
                 </div>
                 <div class="setting-item">
                     <label><span class="lang-zh">单次抽取人数</span><span class="lang-en">Draw Batch Size</span></label>
-                    <input type="number" id="batchNum" value="1" min="1">
+                    <input type="number" id="batchNum" value="1" min="1" max="1000">
                 </div>
                 <div class="setting-item">
                     <label><span class="lang-zh">排除名单 (支持 a-b 范围快速剔除)</span><span class="lang-en">Excludes (Supports a-b)</span></label>
@@ -433,7 +433,7 @@
 
     <div class="footer-copyright">
         <span class="lang-zh">[此处可替换主办方名称]</span><span class="lang-en">[Your Organization]</span> &nbsp;|&nbsp; 
-        <a href="https://github.com/T1MESX/pro-lottery-system" target="_blank" style="color: inherit; text-decoration: none;">Designed by T1MESX</a>
+        <a href="https://github.com/T1MESX/Lottery-Pro" target="_blank" style="color: inherit; text-decoration: none;">Designed by T1MESX</a>
     </div>
 
     <div class="modal" id="resultModal">
@@ -458,7 +458,7 @@
     <div class="modal" id="imageModal">
         <div class="modal-content">
             <h2 style="color: var(--display-text); margin: 0 0 20px 0; font-size: 28px;">
-                <span class="lang-zh">🖼️ 奖品预览</span><span class="lang-en">🖼️ Image Preview</span>
+                <span class="lang-zh">🖼️ 奖品大图预览</span><span class="lang-en">🖼️ Image Preview</span>
             </h2>
             <img id="largePreviewImg" src="">
             <div id="imageModalPrizeInfo"></div>
@@ -531,7 +531,8 @@
                 themeDark: '🌙 影院模式', themeLight: '☀️ 明亮模式',
                 starTip: '点击星星点亮，再次点击取消',
                 posterTitle: '🎉 抽奖结果公示 🎉',
-                posterSub: '— 恭喜各位幸运儿 —'
+                posterSub: '— 恭喜各位幸运儿 —',
+                uploadTip: '上传图片 / Upload Image\n(受限于浏览器本地缓存，≤1MB GIF保留动效，其余高清压缩)'
             },
             en: {
                 musicOn: 'BGM: ON', musicOff: 'BGM: OFF',
@@ -574,7 +575,8 @@
                 themeDark: '🌙 Cinema Mode', themeLight: '☀️ Light Mode',
                 starTip: 'Click to rate, click again to clear',
                 posterTitle: '🎉 WINNERS ANNOUNCEMENT 🎉',
-                posterSub: '— Congratulations —'
+                posterSub: '— Congratulations —',
+                uploadTip: 'Upload Image\n(Due to browser storage limits: ≤1MB GIF kept animated, others auto-compressed)'
             }
         };
 
@@ -584,6 +586,7 @@
             return text;
         }
 
+        // ================= 💡 核心辅助函数：活动标题精确提取器 =================
         function getCoreActivityTitle() {
             let rawActName = document.getElementById('activityTitle').innerText.replace(/[\r\n]+/g, ' ').trim();
             let match = rawActName.match(/——(.*?)——/);
@@ -596,6 +599,7 @@
             document.getElementById('boxOE').title = t('oeTitle');
             document.getElementById('boxHM').title = t('hmTitle');
             document.getElementById('starWrapper').title = t('starTip');
+            document.querySelector('.upload-icon-btn').title = t('uploadTip');
         }
 
         function toggleLanguage() {
@@ -605,6 +609,7 @@
             updateTooltips(); updateClock(); updateStatsBoard();
         }
 
+        // ================= 3. 顶栏操作 =================
         function toggleTheme() {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
@@ -617,10 +622,38 @@
             else { if (document.exitFullscreen) document.exitFullscreen(); }
         }
 
+        // ================= 4. 存储灾备 =================
         function saveState() {
             if(isRunning) return;
             const state = { min: lastMin, max: lastMax, batch: lastBatch, exclude: lastExclude, noRepeat: document.getElementById('noRepeat').checked, drawn: globalDrawnHistory, drawCount: drawCount, logs: globalAuditLogs, historyHtml: document.getElementById('historyList').innerHTML, theme: document.documentElement.getAttribute('data-theme') || 'light', currentStars: currentStars, lastPrizeNote: lastPrizeNote };
-            localStorage.setItem('pro_lottery_state', JSON.stringify(state));
+            
+            // 💡 修复：FIFO 极限缓存淘汰机制 (防止巨型图片撑爆浏览器)
+            let saved = false;
+            let attempts = 0;
+            while (!saved && attempts < 50) {
+                try {
+                    localStorage.setItem('pro_lottery_state', JSON.stringify(state));
+                    saved = true;
+                } catch (e) {
+                    attempts++;
+                    if (globalAuditLogs.length > 0) {
+                        globalAuditLogs.shift(); // 内存中丢弃最老记录
+                        
+                        const hl = document.getElementById('historyList');
+                        const items = hl.querySelectorAll('.history-item');
+                        if (items.length > 0) {
+                            items[items.length - 1].remove(); // DOM中丢弃最老记录 (最下面那条)
+                        }
+                        
+                        state.logs = globalAuditLogs;
+                        state.historyHtml = hl.innerHTML;
+                        console.warn("Storage quota exceeded. FIFO triggered: Oldest record dropped.");
+                    } else {
+                        console.error("Storage completely full. Cannot save.");
+                        break;
+                    }
+                }
+            }
         }
         function loadState() {
             const raw = localStorage.getItem('pro_lottery_state'); if(!raw) return;
@@ -647,6 +680,7 @@
             } catch(e) { console.error("Restore failed", e); }
         }
 
+        // ================= 5. 音频引擎 =================
         const audioEl = document.getElementById('bgmAudio');
         document.getElementById('localBgmInput').addEventListener('change', function(e) {
             const files = Array.from(e.target.files).filter(f => f.type.startsWith('audio/'));
@@ -673,10 +707,57 @@
             document.body.className = currentLang; 
         }
 
+        // ================= 6. 图片上传与隐形 Canvas 智能压缩引擎 =================
         document.getElementById('prizeImage').addEventListener('change', function(e) {
-            const file = e.target.files[0]; const box = document.getElementById('imgPreviewBox'); const img = document.getElementById('previewImg');
-            if (file) { const reader = new FileReader(); reader.onload = function(evt) { currentImageBase64 = evt.target.result; img.src = currentImageBase64; box.style.display = 'block'; }; reader.readAsDataURL(file); } 
-            else { clearImage(); }
+            const file = e.target.files[0]; 
+            const box = document.getElementById('imgPreviewBox'); 
+            const imgPreview = document.getElementById('previewImg');
+            
+            if (file) { 
+                // 💡 修复：如果是 GIF 且小于 1MB，则跳过压缩以保留动画
+                if (file.type === 'image/gif' && file.size <= 1024 * 1024) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        currentImageBase64 = evt.target.result;
+                        imgPreview.src = currentImageBase64;
+                        box.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    // 否则进行高清 WebP 压缩
+                    const reader = new FileReader(); 
+                    reader.onload = function(evt) { 
+                        const img = new Image();
+                        img.onload = function() {
+                            const MAX_WIDTH = 1200; // 海报级视网膜分辨率
+                            const MAX_HEIGHT = 1200;
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                                if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                            } else {
+                                if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                            }
+
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            canvas.width = width;
+                            canvas.height = height;
+                            ctx.drawImage(img, 0, 0, width, height);
+
+                            currentImageBase64 = canvas.toDataURL('image/webp', 0.92);
+                            imgPreview.src = currentImageBase64; 
+                            box.style.display = 'block'; 
+                        };
+                        img.src = evt.target.result; 
+                    }; 
+                    reader.readAsDataURL(file); 
+                }
+            } 
+            else { 
+                clearImage(); 
+            }
         });
         function clearImage() { currentImageBase64 = null; document.getElementById('previewImg').src = ''; document.getElementById('imgPreviewBox').style.display = 'none'; document.getElementById('prizeImage').value = ''; }
         
@@ -697,7 +778,8 @@
         });
         function closeImageModal() { document.getElementById('imageModal').style.display = 'none'; }
 
-        // 💡 修复核心：更严格的正整数强制拦截
+
+        // ================= 7. 强力输入防呆引擎 =================
         function validatePositiveInt(val) { return /^\d+$/.test(val) && Number(val) > 0; }
         
         function setupNumberInput(id, getPrevValue, setPrevValue, isRange) {
@@ -710,6 +792,24 @@
                 }
                 let val = this.value.trim();
                 if (!validatePositiveInt(val) || val === "") { alert(t('alertPositive')); this.value = getPrevValue(); return; }
+                
+                // 💡 新增核心：内存与渲染防爆锁 (Circuit Breaker)
+                if (isRange) {
+                    let testMin = id === 'minNum' ? Number(val) : Number(document.getElementById('minNum').value);
+                    let testMax = id === 'maxNum' ? Number(val) : Number(document.getElementById('maxNum').value);
+                    // 限制最大奖池跨度为 100,000
+                    if (testMax - testMin > 100000) {
+                        alert(currentLang === 'zh' ? '⚠️ 性能保护：为防止浏览器内存溢出，号码区间不能超过 10 万！' : '⚠️ Memory limit: Range cannot exceed 100,000!');
+                        this.value = getPrevValue();
+                        return;
+                    }
+                } else if (id === 'batchNum' && Number(val) > 1000) {
+                    // 限制单次最大抽取人数为 1,000
+                    alert(currentLang === 'zh' ? '⚠️ 性能保护：为防止界面卡死，单次抽取最多支持 1000 人！' : '⚠️ Performance limit: Max batch size is 1000!');
+                    this.value = getPrevValue();
+                    return;
+                }
+
                 if (val === String(getPrevValue())) return; 
                 
                 if (isRange && globalDrawnHistory.length > 0) {
@@ -785,6 +885,7 @@
         });
         document.getElementById('prizeNote').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); this.blur(); } });
 
+        // ================= 8. 星级打分 =================
         const starElements = document.querySelectorAll('.star-rating .star');
         function renderStars(count) { starElements.forEach((s, i) => { s.textContent = '★'; s.style.color = i < count ? '#f59e0b' : 'var(--border-color)'; s.style.textShadow = i < count ? '0 2px 5px rgba(245,158,11,0.3)' : 'none'; }); }
         starElements.forEach(star => {
@@ -797,6 +898,7 @@
             });
         });
 
+        // ================= 9. 时钟与键盘防呆系统 =================
         function updateClock() {
             const now = new Date(); const y = now.getFullYear(); const m = String(now.getMonth()+1).padStart(2,'0'); const d = String(now.getDate()).padStart(2,'0');
             const hh = String(now.getHours()).padStart(2,'0'); const mm = String(now.getMinutes()).padStart(2,'0'); const ss = String(now.getSeconds()).padStart(2,'0');
@@ -832,6 +934,7 @@
             }
         });
 
+        // ================= 10. 粒子引擎 =================
         function createButtonParticles(x, y) {
             const colors = isRunning ? ['#ff7675', '#d63031', '#fab1a0', '#ffffff'] : ['#55efc4', '#00b894', '#ffeaa7', '#ffffff'];
             for (let i = 0; i < 25; i++) {
@@ -868,6 +971,7 @@
             if(active > 0) requestAnimationFrame(renderConfetti); else { confettiActive = false; ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); confettiCanvas.style.display = 'none'; }
         }
 
+        // ================= 11. 核心业务 =================
         function getSecureRandom(min, max) {
             const range = max - min + 1; const maxValid = 4294967295 - (4294967295 % range); 
             let randomArray = new Uint32Array(1); let randomValue;
@@ -1040,7 +1144,46 @@
                 document.getElementById('numberDisplay').innerHTML = finalResults.map(n => `<span style="${spanStyle}">${n}</span>`).join('');
                 
                 updateStatsBoard(); const updatedStats = getPoolStats();
-                addHistoryRecord(resultStr, updatedStats, batchCount, note, stars, currentImageBase64);
+                
+                // 💡 在保存前设置好被压缩过的图片数据
+                let safeImgB64 = currentImageBase64; 
+                if(currentImageBase64 && currentImageBase64.length > 2500000) { 
+                    safeImgB64 = null; 
+                    console.warn("Image too large for cache"); 
+                }
+                const internalId = Date.now() + Math.floor(Math.random() * 10000);
+                drawCount++;
+                const timeStr = updateClock();
+                
+                globalAuditLogs.push({ 
+                    internalId: internalId, 
+                    time: timeStr, 
+                    type: 'Result', 
+                    round: `Round ${drawCount}`, 
+                    content: resultStr, 
+                    prize: note || 'None', 
+                    stars: stars > 0 ? '★'.repeat(stars) : 'None', 
+                    poolInfo: `${updatedStats.remaining}/${updatedStats.total}`, 
+                    image: safeImgB64, 
+                    invalidated: false 
+                });
+
+                const e = document.getElementById('emptyHint'); if(e) e.remove();
+                const dTime = timeStr.replace(' ', '<br>');
+                let pDisp = '';
+                if (note || stars > 0 || safeImgB64) {
+                    const sStr = stars > 0 ? `<span style="margin-left:8px;"><span style="color:#f59e0b;">${'★'.repeat(stars)}</span><span style="color:var(--text-light);">${'★'.repeat(5-stars)}</span></span>` : '';
+                    const imgHtml = safeImgB64 ? `<img src="${safeImgB64}" class="history-prize-img">` : '';
+                    const prizeBox = (note || stars > 0) ? `<div class="history-prize-text">${note ? '🎁 ' + note : ''} ${sStr}</div>` : '';
+                    pDisp = `<div class="history-prize-wrap">${prizeBox}${imgHtml}</div>`;
+                }
+                let displayRound = `Round ${drawCount}`;
+                if (currentLang === 'zh') displayRound = `第 ${drawCount} 轮`;
+                const poolInfoStr = t('logPool', {batch: batchCount, rem: updatedStats.remaining, tot: updatedStats.total}); 
+                const invalidateText = t('invalidateTip');
+                const li = document.createElement('li'); li.className = 'history-item'; li.id = `hist-row-${internalId}`;
+                li.innerHTML = `<div class="item-col-left">${displayRound}</div><div class="item-col-middle"><div class="history-numbers">${resultStr}</div>${pDisp}<div class="pool-info">${poolInfoStr}</div></div><div class="item-col-right"><span>${dTime}</span><button class="invalid-btn" id="btn-invalid-${internalId}" onclick="toggleInvalidate(${internalId}, '${resultStr}')" title="${invalidateText}">${invalidateText}</button></div>`;
+                document.getElementById('historyList').insertBefore(li, document.getElementById('historyList').firstChild);
 
                 setTimeout(() => {
                     let pHtml = '';
@@ -1065,32 +1208,6 @@
 
         function closeResultModal() { document.getElementById('resultModal').style.display = 'none'; }
         function closePoolModal() { document.getElementById('poolModal').style.display = 'none'; }
-
-        function addHistoryRecord(numStr, stats, batch, note, stars, imgB64) {
-            drawCount++; const e = document.getElementById('emptyHint'); if(e) e.remove();
-            const timeStr = updateClock(); const dTime = timeStr.replace(' ', '<br>');
-            let safeImgB64 = imgB64; if(imgB64 && imgB64.length > 500000) { safeImgB64 = null; console.warn("Image too large for cache"); }
-            
-            const internalId = Date.now() + Math.floor(Math.random() * 10000);
-            
-            globalAuditLogs.push({ internalId: internalId, time: timeStr, type: 'Result', round: `Round ${drawCount}`, content: numStr, prize: note||'None', stars: stars>0?'★'.repeat(stars):'None', poolInfo: `${stats.remaining}/${stats.total}`, image: safeImgB64, invalidated: false });
-
-            let pDisp = '';
-            if (note || stars > 0 || imgB64) {
-                const sStr = stars>0 ? `<span style="margin-left:8px;"><span style="color:#f59e0b;">${'★'.repeat(stars)}</span><span style="color:var(--text-light);">${'★'.repeat(5-stars)}</span></span>` : '';
-                const imgHtml = imgB64 ? `<img src="${imgB64}" class="history-prize-img">` : '';
-                const prizeBox = (note || stars > 0) ? `<div class="history-prize-text">${note?'🎁 '+note:''} ${sStr}</div>` : '';
-                pDisp = `<div class="history-prize-wrap">${prizeBox}${imgHtml}</div>`;
-            }
-            
-            let displayRound = `Round ${drawCount}`;
-            if (currentLang === 'zh') displayRound = `第 ${drawCount} 轮`;
-            const poolInfoStr = t('logPool', {batch: batch, rem: stats.remaining, tot: stats.total}); const invalidateText = t('invalidateTip');
-            
-            const li = document.createElement('li'); li.className = 'history-item'; li.id = `hist-row-${internalId}`;
-            li.innerHTML = `<div class="item-col-left">${displayRound}</div><div class="item-col-middle"><div class="history-numbers">${numStr}</div>${pDisp}<div class="pool-info">${poolInfoStr}</div></div><div class="item-col-right"><span>${dTime}</span><button class="invalid-btn" id="btn-invalid-${internalId}" onclick="toggleInvalidate(${internalId}, '${numStr}')" title="${invalidateText}">${invalidateText}</button></div>`;
-            document.getElementById('historyList').insertBefore(li, document.getElementById('historyList').firstChild);
-        }
 
         function addSystemRecord(msg) {
             const e = document.getElementById('emptyHint'); if(e) e.remove(); const timeStr = updateClock();
@@ -1161,16 +1278,21 @@
 
             let coreTitle = getCoreActivityTitle();
             let titleSuffix = currentLang === 'zh' ? " 抽奖结果" : " Results";
-            let fullTitle = coreTitle + titleSuffix;
-
+            
             ctx.font = 'bold 55px "Microsoft YaHei", sans-serif';
             let maxTitleW = 1050;
             let titleLines = [];
-            if (ctx.measureText(fullTitle).width > maxTitleW) {
+            
+            // 先拼接带上 Emoji 的完整标题，用于宽度预判
+            let fullTitleWithEmoji = "🎉 " + coreTitle + titleSuffix + " 🎉";
+            
+            if (ctx.measureText(fullTitleWithEmoji).width > maxTitleW) {
+                // 如果超宽触发了换行，第一行保持纯标题，第二行的“抽奖结果”两旁加上 🎉
                 titleLines.push(coreTitle);
-                titleLines.push(titleSuffix.trim());
+                titleLines.push("🎉 " + titleSuffix.trim() + " 🎉");
             } else {
-                titleLines.push(fullTitle);
+                // 如果一行就能放下，🎉 直接包裹在整个完整标题的两旁
+                titleLines.push(fullTitleWithEmoji);
             }
 
             let startY = 130 + (titleLines.length - 1) * 65 + 60 + 70;
@@ -1211,12 +1333,12 @@
                 predictedY += r.itemHeight + 30; 
             }
 
-            canvas.height = predictedY + 120; 
+            canvas.height = predictedY + 80; 
 
             let grad = ctx.createLinearGradient(0, 0, 0, canvas.height); grad.addColorStop(0, '#111827'); grad.addColorStop(1, '#1f2937');
             ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.strokeStyle = 'rgba(251, 191, 36, 0.1)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(60, 60); ctx.lineTo(1110, 60); 
-            ctx.lineTo(1110, canvas.height-60); ctx.lineTo(60, canvas.height-60); ctx.closePath(); ctx.stroke();
+            ctx.lineTo(1110, predictedY); ctx.lineTo(60, predictedY); ctx.closePath(); ctx.stroke();
 
             ctx.fillStyle = '#fde68a'; ctx.font = 'bold 55px "Microsoft YaHei", sans-serif'; ctx.textAlign = 'center';
             let currentY = 130;
@@ -1247,17 +1369,23 @@
                 }
                 
                 if (r.image) {
-                    try {
-                        const img = await new Promise((res, rej) => { let i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = r.image; });
-                        const maxW = 120, maxH = Math.min(120, r.itemHeight - 40); 
-                        const scale = Math.min(maxW / img.width, maxH / img.height); const w = img.width * scale, h = img.height * scale;
-                        ctx.drawImage(img, 1170 - padding * 2 - 170 + (120-w)/2, itemDrawY + (r.itemHeight - h)/2, w, h);
-                    } catch(e) { console.error('Draw image failed'); }
+                    const img = await new Promise((res, rej) => {
+                        let i = new Image();
+                        i.onload = async () => {
+                            try { if (i.decode) await i.decode(); } catch(err) {}
+                            res(i);
+                        };
+                        i.onerror = rej;
+                        i.src = r.image;
+                    });
+                    const maxW = 120, maxH = Math.min(120, r.itemHeight - 40); 
+                    const scale = Math.min(maxW / img.width, maxH / img.height); const w = img.width * scale, h = img.height * scale;
+                    ctx.drawImage(img, 1170 - padding * 2 - 170 + (120-w)/2, itemDrawY + (r.itemHeight - h)/2, w, h);
                 }
                 itemDrawY += r.itemHeight + 30; 
             }
             
-            ctx.fillStyle = '#475569'; ctx.font = '18px Arial'; ctx.textAlign = 'center'; ctx.fillText("Generated securely by Pro Lottery System", 585, canvas.height - 35);
+            ctx.fillStyle = '#475569'; ctx.font = '18px Arial'; ctx.textAlign = 'center'; ctx.fillText("Generated securely by Lottery Pro v2", 585, predictedY + 45);
             
             const now = new Date();
             const dStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
@@ -1269,7 +1397,18 @@
         }
 
         // ================= 16. 初始化 =================
-        window.onload = () => { updateTooltips(); updateStatsBoard(); updateClock(); document.body.className = currentLang; loadState(); };
+        window.onload = () => { 
+            updateTooltips(); 
+            updateStatsBoard(); 
+            updateClock(); 
+            document.body.className = currentLang; 
+            
+            // 💡 修复：确保刷新时初始的上传提示被正确附上
+            const uploadBtn = document.querySelector('.upload-icon-btn');
+            if(uploadBtn) uploadBtn.title = t('uploadTip');
+            
+            loadState(); 
+        };
     </script>
 </body>
 </html>
