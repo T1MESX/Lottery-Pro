@@ -349,7 +349,7 @@
     <div class="top-controls">
         <a class="top-btn" href="https://github.com/T1MESX/Lottery-Pro" target="_blank" title="GitHub Repository">
             <svg height="18" viewBox="0 0 16 16" width="18" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-            <span id="versionText">v3.1.3</span>
+            <span id="versionText">v3.2.3</span>
         </a>
         <span>|</span>
         <span class="top-btn" id="btnExportState" onclick="exportState()">
@@ -640,7 +640,7 @@
     <div class="modal" id="imageModal">
         <div class="modal-content">
             <h2 style="color: var(--display-text); margin: 0 0 20px 0; font-size: 28px;">
-                <span class="lang-zh">🖼️ 奖品大图预览</span><span class="lang-en">🖼️ Image Preview</span>
+                <span class="lang-zh">🖼️ 奖品预览</span><span class="lang-en">🖼️ Image Preview</span>
             </h2>
             <img id="largePreviewImg" src="">
             <div id="imageModalPrizeInfo"></div>
@@ -651,28 +651,28 @@
     <script>
         // ================= 0. 全局统一配置 =================
         const SYS_CONFIG = {
-            version: "v3.2.0",
+            version: "v3.2.3",
             tag: "", 
             
             imageCompression: {
-                maxWidth: 700,   
-                maxHeight: 700,  
-                quality: 0.90    
+                maxWidth: 800,   
+                maxHeight: 800,  
+                quality: 0.95    
             },
 
             zh: {
-                mainTitle: "🍿 专业级抽奖终端 v3 🍿",
-                subTitle: "—— [在此替换您的名称] ——",
+                mainTitle: "🍿 抽奖终端 Pro v3 🍿",
+                subTitle: "—— [在此替换您的活动名称] ——",
                 footerOrg: "[此处可替换主办方名称]"
             },
             en: {
-                mainTitle: "🍿 Lottery Pro v3 Terminal 🍿",
+                mainTitle: "🍿 Lottery Pro v3 🍿",
                 subTitle: "—— [Replace With Your Event Name] ——",
                 footerOrg: "[Your Organization]"
             }
         };
 
-        // ================= 1. 全局状态 =================
+        // ================= 1. 全局状态变量 =================
         let timer = null;          
         let isRunning = false;     
         let drawCount = 0;         
@@ -697,13 +697,13 @@
         let activePresetId = null;
         let prePresetState = null;
 
-        let lastMin = document.getElementById('minNum').value;
-        let lastMax = document.getElementById('maxNum').value;
-        let lastBatch = document.getElementById('batchNum').value;
-        let lastExclude = document.getElementById('excludeNum').value.trim();
+        let lastMin = 1;
+        let lastMax = 100;
+        let lastBatch = 1;
+        let lastExclude = '';
         let lastPrizeNote = '';
 
-        // ================= 2. 多语言系统 =================
+        // ================= 2. 多语言系统 (i18n) =================
         const i18n = {
             zh: {
                 musicOn: '音乐: 开', musicOff: '音乐: 关',
@@ -745,12 +745,13 @@
                 starTip: '点击星星点亮，再次点击取消',
                 posterTitle: '🎉 抽奖结果公示 🎉',
                 posterSub: '— 恭喜各位幸运儿 —',
-                uploadTip: '上传图片 (支持拖拽) / Upload Image\n(受限于浏览器本地缓存，≤1MB GIF保留动效，其余高清压缩)',
+                uploadTip: '上传图片 (支持拖拽) \n(受限于浏览器本地缓存，≤1MB GIF保留动效，其余高清压缩)',
                 alertPresetMax: '预设项最多只允许保留 20 个！请先删除不需要的预设。',
                 logPresetAdd: '已成功添加预设：{name}',
                 logPresetDel: '已删除预设',
                 logListImport: '已成功载入自定义名单。',
-                logListClear: '已退出自定义名单模式，恢复数字区间模式。'
+                logListClear: '已退出自定义名单模式，恢复数字区间模式。',
+                noMusic: '未检测到可用音频！\n👉 方案一：在同目录下放置 bgm.mp3, rolling.mp3, success.mp3（系统会自动读取）。\n👉 方案二：拖拽音频文件或点击 [📂 本地音乐] 手动导入BGM。'
             },
             en: {
                 musicOn: 'BGM: ON', musicOff: 'BGM: OFF',
@@ -797,10 +798,12 @@
                 logPresetAdd: 'Preset added: {name}',
                 logPresetDel: 'Preset deleted',
                 logListImport: 'Custom list imported successfully.',
-                logListClear: 'Custom list mode exited. Number range restored.'
+                logListClear: 'Custom list mode exited. Number range restored.',
+                noMusic: 'No audio detected!\n👉 Option 1: Place bgm.mp3, rolling.mp3, success.mp3 in the directory.\n👉 Option 2: Drag & drop or click [📂 Load Music] to import BGM.'
             }
         };
 
+        // ================= 3. UI 初始化与工具提示 =================
         function initGlobalConfig() {
             document.title = `${SYS_CONFIG.tag ? SYS_CONFIG.tag + ' ' : ''}Lottery Pro ${SYS_CONFIG.version}`;
             document.getElementById('versionText').innerText = SYS_CONFIG.version;
@@ -810,6 +813,15 @@
             document.getElementById('subTitleEn').innerText = SYS_CONFIG.en.subTitle;
             document.getElementById('footerOrgZh').innerText = SYS_CONFIG.zh.footerOrg;
             document.getElementById('footerOrgEn').innerText = SYS_CONFIG.en.footerOrg;
+            
+            const minEl = document.getElementById('minNum');
+            const maxEl = document.getElementById('maxNum');
+            const batchEl = document.getElementById('batchNum');
+            const excEl = document.getElementById('excludeNum');
+            if (minEl) lastMin = minEl.value;
+            if (maxEl) lastMax = maxEl.value;
+            if (batchEl) lastBatch = batchEl.value;
+            if (excEl) lastExclude = excEl.value.trim();
         }
 
         function t(key, params={}) {
@@ -825,36 +837,23 @@
             return coreTitle || "Lottery Activity";
         }
 
-        // 💡 修复 2：悬浮提示集中管控引擎，实现无缝中英热切换，不再遗漏
         function updateTooltips() {
             const isZh = currentLang === 'zh';
+            const setAttr = (id, attr, val) => { const el = document.getElementById(id); if (el) el.setAttribute(attr, val); };
             
-            const setAttr = (id, attr, val) => {
-                const el = document.getElementById(id);
-                if (el) el.setAttribute(attr, val);
-            };
-            
-            // 主操作区按钮
             setAttr('importBtnUI', 'title', isZh ? "导入名单 (支持 .xlsx, .xls, .csv, .txt)\n支持直接将文件拖拽至此按钮或右侧蓝色摇奖区。\n注意：Excel仅读取Sheet1的A列，请删去表头！" : "Import List (.xlsx, .csv, .txt)\nSupport Drag & Drop to this button or the blue display area.\nNote: Reads only Column A of Sheet1. Remove headers!");
             setAttr('controlBtn', 'title', isZh ? "开始抽奖 (快捷键: 空格)" : "Start Draw (Hotkey: Space)");
             setAttr('btnResetUI', 'title', isZh ? "清空当前所有抽奖记录并将人员重置回候选池" : "Reset all records & restore pool");
-            
-            // 顶部导航栏按钮
             setAttr('themeBtn', 'title', isZh ? "切换暗黑/明亮模式 (快捷键: D)" : "Toggle Dark/Light Mode (Hotkey: D)");
             setAttr('fullscreenBtn', 'title', isZh ? "切换全屏 (快捷键: F)" : "Toggle Fullscreen (Hotkey: F)");
             setAttr('loadMusicBtn', 'title', isZh ? "导入本地音频 (.mp3, .flac)\n支持拖拽音频文件至此区" : "Load Audio files (.mp3, .flac)\nDrag & Drop supported");
             setAttr('musicBtn', 'title', isZh ? "切换音乐播放/暂停 (快捷键: M)" : "Toggle Music (Hotkey: M)");
             setAttr('btnExportState', 'title', isZh ? "导出当前所有数据与设置快照" : "Export all data & settings snapshot");
             setAttr('btnImportState', 'title', isZh ? "导入备份的状态快照" : "Import state snapshot backup");
-            
-            // 预设页签按钮
             setAttr('addPresetBtn', 'title', isZh ? "将左侧当前的设置保存为一个快捷页签" : "Save current left-side settings as a quick preset tab");
-            
-            // 💡 修复 1：底部日志/海报导出按钮，加上文件格式后缀
-            setAttr('btnGeneratePoster', 'title', isZh ? "生成近期有效记录的海报 (.png)" : "Generate poster of recent valid records (.png)");
+            setAttr('btnGeneratePoster', 'title', isZh ? "生成包含指定有效记录的海报 (.png)" : "Generate poster of recent specified valid records (.png)");
             setAttr('btnExportLog', 'title', isZh ? "导出全部历史与审计日志 (.csv)" : "Export all history and audit logs (.csv)");
             
-            // 其他模块
             setAttr('boxVar', 'title', t('varTitle'));
             setAttr('boxOE', 'title', t('oeTitle'));
             setAttr('boxHM', 'title', t('hmTitle'));
@@ -866,9 +865,11 @@
 
         function updateMusicName(name) {
             const el = document.getElementById('musicNameText');
-            el.innerText = name;
-            el.classList.remove('marquee-text');
-            setTimeout(() => { if (el.scrollWidth > 110) { el.classList.add('marquee-text'); } }, 50);
+            if(el) {
+                el.innerText = name;
+                el.classList.remove('marquee-text');
+                setTimeout(() => { if (el.scrollWidth > 110) { el.classList.add('marquee-text'); } }, 50);
+            }
         }
 
         function toggleListModeUI(active) {
@@ -906,10 +907,12 @@
             });
         }
 
+        // ================= 4. 语言与主题切换 =================
         function toggleLanguage() {
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
             document.body.className = currentLang;
-            if(!isRunning) { document.getElementById('controlBtn').innerHTML = currentLang === 'zh' ? '<span class="lang-zh">开始抽奖</span><span class="lang-en">START DRAW</span>' : 'START DRAW'; }
+            const cBtn = document.getElementById('controlBtn');
+            if(!isRunning && cBtn) { cBtn.innerHTML = currentLang === 'zh' ? '<span class="lang-zh">开始抽奖</span><span class="lang-en">START DRAW</span>' : 'START DRAW'; }
             updateTooltips(); updateClock(); updateStatsBoard(); renderPresets();
             updateLogButtonsLanguage();
         }
@@ -917,24 +920,29 @@
         function toggleTheme() {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-            document.getElementById('themeBtnText').innerText = isDark ? '🌙 影院模式' : '☀️ 明亮模式';
-            document.getElementById('themeBtnTextEn').innerText = isDark ? '🌙 Cinema Mode' : '☀️ Light Mode';
+            const tbText = document.getElementById('themeBtnText');
+            const tbTextEn = document.getElementById('themeBtnTextEn');
+            if(tbText) tbText.innerText = isDark ? '🌙 影院模式' : '☀️ 明亮模式';
+            if(tbTextEn) tbTextEn.innerText = isDark ? '🌙 Cinema Mode' : '☀️ Light Mode';
             saveState();
         }
+
         function toggleFullscreen() {
             if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(err => { console.log(err); }); } 
             else { if (document.exitFullscreen) document.exitFullscreen(); }
         }
 
+        // ================= 5. 本地缓存与快照导入导出 =================
         function saveState() {
             if(isRunning) return;
+            const volEl = document.getElementById('volSlider');
             const state = { 
                 min: lastMin, max: lastMax, batch: lastBatch, exclude: lastExclude, 
                 noRepeat: document.getElementById('noRepeat').checked, drawn: globalDrawnHistory, 
                 drawCount: drawCount, logs: globalAuditLogs, historyHtml: document.getElementById('historyList').innerHTML, 
                 theme: document.documentElement.getAttribute('data-theme') || 'light', currentStars: currentStars, 
                 lastPrizeNote: lastPrizeNote, isCustomPool, customPoolOrigin, customPoolExcluded, presets,
-                volume: document.getElementById('volSlider').value 
+                volume: volEl ? volEl.value : 0.5 
             };
             
             let saved = false;
@@ -966,12 +974,11 @@
                 const state = JSON.parse(raw);
                 
                 if(state.volume !== undefined) {
-                    document.getElementById('volSlider').value = state.volume;
-                    audioEl.volume = state.volume;
-                    const rollingEl = document.getElementById('rollingAudio');
-                    const successEl = document.getElementById('successAudio');
-                    if(rollingEl) rollingEl.volume = state.volume;
-                    if(successEl) successEl.volume = state.volume;
+                    const volEl = document.getElementById('volSlider');
+                    if(volEl) volEl.value = state.volume;
+                    if(audioEl) audioEl.volume = state.volume;
+                    if(rollingAudio) rollingAudio.volume = state.volume;
+                    if(successAudio) successAudio.volume = state.volume;
                 }
 
                 if(state.drawn && state.drawn.length > 0 || (state.presets && state.presets.length > 0)) {
@@ -997,7 +1004,12 @@
 
                         toggleListModeUI(isCustomPool);
 
-                        if(state.theme === 'dark') { document.getElementById('themeBtnText').innerText = '☀️ 明亮模式'; document.getElementById('themeBtnTextEn').innerText = '☀️ Light Mode'; }
+                        if(state.theme === 'dark') { 
+                            const tbText = document.getElementById('themeBtnText');
+                            const tbTextEn = document.getElementById('themeBtnTextEn');
+                            if(tbText) tbText.innerText = '☀️ 明亮模式'; 
+                            if(tbTextEn) tbTextEn.innerText = '☀️ Light Mode'; 
+                        }
                         updateStatsBoard(); renderPresets();
                     } else { localStorage.removeItem('pro_lottery_state'); }
                 }
@@ -1018,203 +1030,262 @@
             addSystemRecord(currentLang === 'zh' ? '已成功导出系统状态快照。' : 'System state snapshot exported.');
         }
 
-        document.getElementById('importStateInput').addEventListener('change', function(e) {
-            if(isRunning) return;
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const json = JSON.parse(evt.target.result);
-                    if (json.min !== undefined && json.logs !== undefined) {
-                        localStorage.setItem('pro_lottery_state', evt.target.result);
-                        alert(currentLang === 'zh' ? '快照导入成功！系统将自动刷新以应用数据。' : 'Snapshot imported! Reloading...');
-                        window.location.reload();
-                    } else {
-                        throw new Error("Invalid format");
+        const importStateInput = document.getElementById('importStateInput');
+        if(importStateInput) {
+            importStateInput.addEventListener('change', function(e) {
+                if(isRunning) return;
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    try {
+                        const json = JSON.parse(evt.target.result);
+                        if (json.min !== undefined && json.logs !== undefined) {
+                            localStorage.setItem('pro_lottery_state', evt.target.result);
+                            alert(currentLang === 'zh' ? '快照导入成功！系统将自动刷新以应用数据。\n⚠️ 刷新后请在弹出的对话框中选择【确定】以恢复历史记录！' : 'Snapshot imported successfully! Reloading...\n⚠️ Please click [OK] on the restore prompt after reloading!');
+                            window.location.reload();
+                        } else {
+                            throw new Error("Invalid format");
+                        }
+                    } catch(err) {
+                        alert(currentLang === 'zh' ? '导入失败：无效的快照文件格式！' : 'Import failed: Invalid snapshot format!');
                     }
-                } catch(err) {
-                    alert(currentLang === 'zh' ? '导入失败：无效的快照文件格式！' : 'Import failed: Invalid snapshot format!');
-                }
-            };
-            reader.readAsText(file);
-            e.target.value = '';
-        });
+                };
+                reader.readAsText(file);
+                e.target.value = '';
+            });
+        }
 
+        // ================= 6. 音频播放与控制引擎 =================
         const audioEl = document.getElementById('bgmAudio');
         const rollingAudio = document.getElementById('rollingAudio'); 
         const successAudio = document.getElementById('successAudio'); 
         
-        audioEl.volume = 0.5;
-        rollingAudio.volume = 0.5;
-        successAudio.volume = 0.5;
+        if(audioEl) audioEl.volume = 0.5;
+        if(rollingAudio) rollingAudio.volume = 0.5;
+        if(successAudio) successAudio.volume = 0.5;
         
-        document.getElementById('volSlider').addEventListener('input', function(e) {
-            audioEl.volume = e.target.value;
-            rollingAudio.volume = e.target.value;
-            successAudio.volume = e.target.value;
-            saveState(); 
-        });
+        let bgmFadeTimer = null;
 
-        // 💡 修复 2：将加载的文件名注入到日志中
+        const volSlider = document.getElementById('volSlider');
+        if(volSlider) {
+            volSlider.addEventListener('input', function(e) {
+                if(audioEl) audioEl.volume = e.target.value;
+                if(rollingAudio) rollingAudio.volume = e.target.value;
+                if(successAudio) successAudio.volume = e.target.value;
+                saveState(); 
+            });
+        }
+
         let musicFileUrl = '';
-        document.getElementById('localBgmInput').addEventListener('change', function(e) {
-            const files = Array.from(e.target.files).filter(f => (f.type && f.type.startsWith('audio/')) || /\.(mp3|flac)$/i.test(f.name));
-            if(files.length > 0) {
-                if(musicFileUrl) URL.revokeObjectURL(musicFileUrl);
-                musicFileUrl = URL.createObjectURL(files[0]);
-                audioEl.src = musicFileUrl;
-                updateMusicName(files[0].name);
-                addSystemRecord(currentLang === 'zh' ? `成功载入背景音乐：${files[0].name}` : `BGM loaded successfully: ${files[0].name}`);
-                if (!isMusicPlaying) toggleMusic();
-                else audioEl.play().catch(err => console.log(err));
-            } else {
-                alert(currentLang === 'zh' ? '仅支持 .mp3 或 .flac 格式！' : 'Only .mp3 or .flac supported!');
-            }
-        });
+        const localBgmInput = document.getElementById('localBgmInput');
+        if(localBgmInput) {
+            localBgmInput.addEventListener('change', function(e) {
+                const files = Array.from(e.target.files).filter(f => (f.type && f.type.startsWith('audio/')) || /\.(mp3|flac)$/i.test(f.name));
+                if(files.length > 0) {
+                    if(musicFileUrl) URL.revokeObjectURL(musicFileUrl);
+                    musicFileUrl = URL.createObjectURL(files[0]);
+                    if(audioEl) audioEl.src = musicFileUrl;
+                    updateMusicName(files[0].name);
+                    addSystemRecord(currentLang === 'zh' ? `成功载入音频：${files[0].name}` : `Audio loaded: ${files[0].name}`);
+                    if (!isMusicPlaying) toggleMusic();
+                    else if(audioEl) audioEl.play().catch(err => console.log(err));
+                } else {
+                    alert(currentLang === 'zh' ? '仅支持 .mp3 或 .flac 格式！' : 'Only .mp3 or .flac supported!');
+                }
+            });
+        }
 
         function playMusic() {
-            if(musicFileUrl) audioEl.src = musicFileUrl;
-            audioEl.play().then(() => {
-                isMusicPlaying = true; document.getElementById('musicBtn').innerHTML = `🎵 <span class="lang-zh">音乐: 开</span><span class="lang-en">BGM: ON</span>`;
-            }).catch(e => {
-                console.log("Audio play failed:", e); alert(t('noMusic')); isMusicPlaying = false;
-                document.getElementById('musicBtn').innerHTML = `🎵 <span class="lang-zh">音乐: 关</span><span class="lang-en">BGM: OFF</span>`;
-            });
+            if(musicFileUrl && audioEl) audioEl.src = musicFileUrl;
+            if(audioEl) {
+                audioEl.play().then(() => {
+                    isMusicPlaying = true; 
+                    const mBtn = document.getElementById('musicBtn');
+                    if(mBtn) mBtn.innerHTML = `🎵 <span class="lang-zh">音乐: 开</span><span class="lang-en">BGM: ON</span>`;
+                }).catch(e => {
+                    console.log("Audio play failed:", e); 
+                    alert(t('noMusic')); 
+                    isMusicPlaying = false;
+                    const mBtn = document.getElementById('musicBtn');
+                    if(mBtn) mBtn.innerHTML = `🎵 <span class="lang-zh">音乐: 关</span><span class="lang-en">BGM: OFF</span>`;
+                });
+            }
         }
 
         function toggleMusic() {
             const btn = document.getElementById('musicBtn');
-            if (isMusicPlaying) { audioEl.pause(); isMusicPlaying = false; btn.innerHTML = `🎵 <span class="lang-zh">音乐: 关</span><span class="lang-en">BGM: OFF</span>`; } 
-            else { playMusic(); }
+            if (isMusicPlaying) { 
+                if(audioEl) audioEl.pause(); 
+                if(rollingAudio) rollingAudio.pause();
+                if(successAudio) successAudio.pause();
+                isMusicPlaying = false; 
+                if(btn) btn.innerHTML = `🎵 <span class="lang-zh">音乐: 关</span><span class="lang-en">BGM: OFF</span>`; 
+            } else { 
+                playMusic(); 
+            }
             document.body.className = currentLang; 
         }
 
+        function resumeBGMWithFade() {
+            if (!isMusicPlaying || !audioEl) return;
+            audioEl.volume = 0;
+            const playPromise = audioEl.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    const volEl = document.getElementById('volSlider');
+                    const targetVol = volEl ? (parseFloat(volEl.value) || 0.5) : 0.5;
+                    let currentVol = 0;
+                    if (bgmFadeTimer) clearInterval(bgmFadeTimer);
+                    bgmFadeTimer = setInterval(() => {
+                        currentVol += 0.05;
+                        if (currentVol >= targetVol) {
+                            audioEl.volume = targetVol;
+                            clearInterval(bgmFadeTimer);
+                        } else {
+                            audioEl.volume = currentVol;
+                        }
+                    }, 50);
+                }).catch(e => console.log("BGM Resume failed", e));
+            }
+        }
+
+        // ================= 7. 拖拽与名单解析引擎 =================
         function initDragAndDrop() {
             const prizeArea = document.getElementById('prizeInputWrap'); 
             const displayArea = document.getElementById('numberDisplay');
             const importBtn = document.getElementById('importBtnUI');
             const musicBtn = document.getElementById('loadMusicBtn'); 
 
-            prizeArea.addEventListener('dragover', e => { e.preventDefault(); prizeArea.classList.add('drag-active'); });
-            prizeArea.addEventListener('dragleave', e => { e.preventDefault(); prizeArea.classList.remove('drag-active'); });
-            prizeArea.addEventListener('drop', e => {
-                e.preventDefault(); prizeArea.classList.remove('drag-active');
-                const file = e.dataTransfer.files[0];
-                if(file && file.type.startsWith('image/')) {
-                    const dt = new DataTransfer(); dt.items.add(file);
-                    document.getElementById('prizeImage').files = dt.files;
-                    document.getElementById('prizeImage').dispatchEvent(new Event('change'));
-                } else {
-                    alert(currentLang === 'zh' ? '文件格式错误！请拖入图片文件。' : 'Invalid format! Please drop an image file.');
-                }
-            });
-
-            musicBtn.addEventListener('dragover', e => { e.preventDefault(); musicBtn.classList.add('drag-active'); });
-            musicBtn.addEventListener('dragleave', e => { e.preventDefault(); musicBtn.classList.remove('drag-active'); });
-            musicBtn.addEventListener('drop', e => {
-                e.preventDefault(); musicBtn.classList.remove('drag-active');
-                const files = Array.from(e.dataTransfer.files).filter(f => (f.type && f.type.startsWith('audio/')) || /\.(mp3|flac)$/i.test(f.name));
-                if(files.length > 0) {
-                    const dt = new DataTransfer();
-                    files.forEach(f => dt.items.add(f));
-                    document.getElementById('localBgmInput').files = dt.files;
-                    document.getElementById('localBgmInput').dispatchEvent(new Event('change'));
-                } else {
-                    alert(currentLang === 'zh' ? '格式错误！仅支持 .mp3 或 .flac' : 'Invalid format! Only .mp3 or .flac supported.');
-                }
-            });
-
-            [displayArea, importBtn].forEach(el => {
-                el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-active'); });
-                el.addEventListener('dragleave', e => { e.preventDefault(); el.classList.remove('drag-active'); });
-                el.addEventListener('drop', e => {
-                    e.preventDefault(); el.classList.remove('drag-active');
+            if(prizeArea) {
+                prizeArea.addEventListener('dragover', e => { e.preventDefault(); prizeArea.classList.add('drag-active'); });
+                prizeArea.addEventListener('dragleave', e => { e.preventDefault(); prizeArea.classList.remove('drag-active'); });
+                prizeArea.addEventListener('drop', e => {
+                    e.preventDefault(); prizeArea.classList.remove('drag-active');
                     const file = e.dataTransfer.files[0];
-                    if(file) {
-                        const validExts = ['.xlsx', '.xls', '.csv', '.txt'];
-                        const isValid = validExts.some(ext => file.name.toLowerCase().endsWith(ext));
-                        if(isValid) {
-                            const dt = new DataTransfer(); dt.items.add(file);
-                            document.getElementById('importListInput').files = dt.files;
-                            document.getElementById('importListInput').dispatchEvent(new Event('change'));
-                        } else {
-                            alert(currentLang === 'zh' ? '文件格式错误！仅支持 .xlsx, .xls, .csv, .txt' : 'Invalid format! Only .xlsx, .xls, .csv, .txt are supported.');
-                        }
+                    if(file && file.type.startsWith('image/')) {
+                        const dt = new DataTransfer(); dt.items.add(file);
+                        const pImg = document.getElementById('prizeImage');
+                        if(pImg) { pImg.files = dt.files; pImg.dispatchEvent(new Event('change')); }
+                    } else {
+                        alert(currentLang === 'zh' ? '文件格式错误！请拖入图片文件。' : 'Invalid format! Please drop an image file.');
                     }
                 });
+            }
+
+            if(musicBtn) {
+                musicBtn.addEventListener('dragover', e => { e.preventDefault(); musicBtn.classList.add('drag-active'); });
+                musicBtn.addEventListener('dragleave', e => { e.preventDefault(); musicBtn.classList.remove('drag-active'); });
+                musicBtn.addEventListener('drop', e => {
+                    e.preventDefault(); musicBtn.classList.remove('drag-active');
+                    const files = Array.from(e.dataTransfer.files).filter(f => (f.type && f.type.startsWith('audio/')) || /\.(mp3|flac)$/i.test(f.name));
+                    if(files.length > 0) {
+                        const dt = new DataTransfer();
+                        files.forEach(f => dt.items.add(f));
+                        const lBgm = document.getElementById('localBgmInput');
+                        if(lBgm) { lBgm.files = dt.files; lBgm.dispatchEvent(new Event('change')); }
+                    } else {
+                        alert(currentLang === 'zh' ? '格式错误！仅支持 .mp3 或 .flac' : 'Invalid format! Only .mp3 or .flac supported.');
+                    }
+                });
+            }
+
+            [displayArea, importBtn].forEach(el => {
+                if(el) {
+                    el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-active'); });
+                    el.addEventListener('dragleave', e => { e.preventDefault(); el.classList.remove('drag-active'); });
+                    el.addEventListener('drop', e => {
+                        e.preventDefault(); el.classList.remove('drag-active');
+                        const file = e.dataTransfer.files[0];
+                        if(file) {
+                            const validExts = ['.xlsx', '.xls', '.csv', '.txt'];
+                            const isValid = validExts.some(ext => file.name.toLowerCase().endsWith(ext));
+                            if(isValid) {
+                                const dt = new DataTransfer(); dt.items.add(file);
+                                const iList = document.getElementById('importListInput');
+                                if(iList) { iList.files = dt.files; iList.dispatchEvent(new Event('change')); }
+                            } else {
+                                alert(currentLang === 'zh' ? '文件格式错误！仅支持 .xlsx, .xls, .csv, .txt' : 'Invalid format! Only .xlsx, .xls, .csv, .txt are supported.');
+                            }
+                        }
+                    });
+                }
             });
         }
 
-        document.getElementById('importListInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            
-            reader.onload = function(evt) {
-                try {
-                    const data = evt.target.result;
-                    let parsedList = [];
-                    
-                    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                        const workbook = XLSX.read(data, {type: 'binary'});
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-                        const json = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-                        for(let i=0; i<json.length; i++) {
-                            if(json[i] && json[i][0] !== undefined && json[i][0] !== null && String(json[i][0]).trim() !== '') {
-                                parsedList.push(String(json[i][0]).trim());
+        const importListInput = document.getElementById('importListInput');
+        if (importListInput) {
+            importListInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                
+                reader.onload = function(evt) {
+                    try {
+                        const data = evt.target.result;
+                        let parsedList = [];
+                        
+                        if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                            const workbook = XLSX.read(data, {type: 'binary'});
+                            const firstSheetName = workbook.SheetNames[0];
+                            const worksheet = workbook.Sheets[firstSheetName];
+                            const json = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                            for(let i=0; i<json.length; i++) {
+                                if(json[i] && json[i][0] !== undefined && json[i][0] !== null && String(json[i][0]).trim() !== '') {
+                                    parsedList.push(String(json[i][0]).trim());
+                                }
                             }
+                        } else {
+                            parsedList = data.split(/[\r\n,，\s]+/).map(s => s.trim()).filter(s => s !== '');
                         }
-                    } else {
-                        parsedList = data.split(/[\r\n,，\s]+/).map(s => s.trim()).filter(s => s !== '');
+
+                        if (parsedList.length === 0) {
+                            alert(currentLang === 'zh' ? "未发现有效数据，请检查文件内容！" : "No valid data found, please check the file!");
+                            return;
+                        }
+
+                        let seen = new Set();
+                        let dupes = new Set();
+                        parsedList.forEach(item => {
+                            if (seen.has(item)) dupes.add(item);
+                            else seen.add(item);
+                        });
+                        
+                        customPoolOrigin = Array.from(seen);
+                        isCustomPool = true;
+                        
+                        if (dupes.size > 0) {
+                            let dupeArr = Array.from(dupes);
+                            let msg = currentLang === 'zh' ? 
+                                `⚠️ 提示：发现并已自动去重 ${dupeArr.length} 种重复项。\n\n[重复项]:\n${dupeArr.slice(0,5).join(', ')}${dupeArr.length > 5 ? ' ...' : ''}` :
+                                `⚠️ Note: Automatically removed ${dupeArr.length} duplicate types.\n\n[Duplicates]:\n${dupeArr.slice(0,5).join(', ')}${dupeArr.length > 5 ? ' ...' : ''}`;
+                            alert(msg);
+                        }
+
+                        toggleListModeUI(true);
+                        globalDrawnHistory = [];
+                        drawCount = 0;
+                        const numDisp = document.getElementById('numberDisplay');
+                        if (numDisp) numDisp.innerHTML = "?";
+                        updateStatsBoard();
+
+                        addSystemRecord(t('logListImport', {n: customPoolOrigin.length}));
+                        saveState();
+
+                    } catch (error) {
+                        console.error(error);
+                        alert(currentLang === 'zh' ? "解析失败，请检查文件格式。建议使用单列无空行的 Excel 或 TXT 文件。" : "Parsing failed. Please ensure a valid single-column Excel or TXT.");
                     }
+                };
 
-                    if (parsedList.length === 0) {
-                        alert(currentLang === 'zh' ? "未发现有效数据，请检查文件内容！" : "No valid data found, please check the file!");
-                        return;
-                    }
-
-                    let seen = new Set();
-                    let dupes = new Set();
-                    parsedList.forEach(item => {
-                        if (seen.has(item)) dupes.add(item);
-                        else seen.add(item);
-                    });
-                    
-                    customPoolOrigin = Array.from(seen);
-                    isCustomPool = true;
-                    
-                    if (dupes.size > 0) {
-                        let dupeArr = Array.from(dupes);
-                        let msg = currentLang === 'zh' ? 
-                            `⚠️ 提示：发现并已自动去重 ${dupeArr.length} 种重复项。\n\n[重复项]:\n${dupeArr.slice(0,5).join(', ')}${dupeArr.length > 5 ? ' ...' : ''}` :
-                            `⚠️ Note: Automatically removed ${dupeArr.length} duplicate types.\n\n[Duplicates]:\n${dupeArr.slice(0,5).join(', ')}${dupeArr.length > 5 ? ' ...' : ''}`;
-                        alert(msg);
-                    }
-
-                    toggleListModeUI(true);
-                    globalDrawnHistory = [];
-                    drawCount = 0;
-                    document.getElementById('numberDisplay').innerHTML = "?";
-                    updateStatsBoard();
-
-                    addSystemRecord(t('logListImport', {n: customPoolOrigin.length}));
-                    saveState();
-
-                } catch (error) {
-                    console.error(error);
-                    alert(currentLang === 'zh' ? "解析失败，请检查文件格式。建议使用单列无空行的 Excel 或 TXT 文件。" : "Parsing failed. Please ensure a valid single-column Excel or TXT.");
+                if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    reader.readAsBinaryString(file);
+                } else {
+                    reader.readAsText(file);
                 }
-            };
-
-            if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                reader.readAsBinaryString(file);
-            } else {
-                reader.readAsText(file);
-            }
-            e.target.value = ''; 
-        });
+                e.target.value = ''; 
+            });
+        }
 
         function clearCustomPool() {
             if(isRunning) return;
@@ -1228,82 +1299,101 @@
             saveState();
         }
 
-        document.getElementById('prizeImage').addEventListener('change', function(e) {
-            const file = e.target.files[0]; 
-            const box = document.getElementById('imgPreviewBox'); 
-            const imgPreview = document.getElementById('previewImg');
-            
-            if (file) { 
-                if (file.type === 'image/gif' && file.size <= 1024 * 1024) {
-                    const reader = new FileReader();
-                    reader.onload = function(evt) {
-                        currentImageBase64 = evt.target.result;
-                        imgPreview.src = currentImageBase64;
-                        box.style.display = 'block';
-                        checkAndSaveActivePreset(); 
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    const reader = new FileReader(); 
-                    reader.onload = function(evt) { 
-                        const img = new Image();
-                        img.onload = function() {
-                            const MAX_WIDTH = 1200; 
-                            const MAX_HEIGHT = 1200;
-                            let width = img.width;
-                            let height = img.height;
-
-                            if (width > height) {
-                                if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                            } else {
-                                if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                            }
-
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            canvas.width = width;
-                            canvas.height = height;
-                            ctx.drawImage(img, 0, 0, width, height);
-
-                            currentImageBase64 = canvas.toDataURL('image/webp', 0.92);
-                            imgPreview.src = currentImageBase64; 
-                            box.style.display = 'block'; 
+        // ================= 8. 图片上传与压缩处理 =================
+        const prizeImageInput = document.getElementById('prizeImage');
+        if (prizeImageInput) {
+            prizeImageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0]; 
+                const box = document.getElementById('imgPreviewBox'); 
+                const imgPreview = document.getElementById('previewImg');
+                
+                if (file) { 
+                    if (file.type === 'image/gif' && file.size <= 1024 * 1024) {
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            currentImageBase64 = evt.target.result;
+                            if(imgPreview) imgPreview.src = currentImageBase64;
+                            if(box) box.style.display = 'block';
                             checkAndSaveActivePreset(); 
                         };
-                        img.src = evt.target.result; 
-                    }; 
-                    reader.readAsDataURL(file); 
+                        reader.readAsDataURL(file);
+                    } else {
+                        const reader = new FileReader(); 
+                        reader.onload = function(evt) { 
+                            const img = new Image();
+                            img.onload = function() {
+                                const MAX_WIDTH = 1200; 
+                                const MAX_HEIGHT = 1200;
+                                let width = img.width;
+                                let height = img.height;
+
+                                if (width > height) {
+                                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                                } else {
+                                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                                }
+
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                canvas.width = width;
+                                canvas.height = height;
+                                ctx.drawImage(img, 0, 0, width, height);
+
+                                currentImageBase64 = canvas.toDataURL('image/webp', 0.92);
+                                if(imgPreview) imgPreview.src = currentImageBase64; 
+                                if(box) box.style.display = 'block'; 
+                                checkAndSaveActivePreset(); 
+                            };
+                            img.src = evt.target.result; 
+                        }; 
+                        reader.readAsDataURL(file); 
+                    }
+                } 
+                else { 
+                    clearImage(); 
                 }
-            } 
-            else { 
-                clearImage(); 
-            }
-        });
+            });
+        }
 
         function clearImage() { 
             currentImageBase64 = null; 
-            document.getElementById('previewImg').src = ''; 
-            document.getElementById('imgPreviewBox').style.display = 'none'; 
-            document.getElementById('prizeImage').value = ''; 
+            const imgPreview = document.getElementById('previewImg');
+            const box = document.getElementById('imgPreviewBox');
+            const prizeImg = document.getElementById('prizeImage');
+            if(imgPreview) imgPreview.src = ''; 
+            if(box) box.style.display = 'none'; 
+            if(prizeImg) prizeImg.value = ''; 
             checkAndSaveActivePreset(); 
         }
         
-        document.getElementById('previewImg').addEventListener('click', function() {
-            if (this.src) {
-                document.getElementById('largePreviewImg').src = this.src;
-                const note = document.getElementById('prizeNote').value.trim();
-                let infoHtml = '';
-                if (note || currentStars > 0) {
-                    const sStr = (currentStars > 0) ? '<span style="color:#f59e0b; text-shadow: 0 2px 4px rgba(245,158,11,0.3);">★</span>'.repeat(currentStars) + '<span style="color:var(--text-light);">★</span>'.repeat(5-currentStars) : '';
-                    const nStr = note ? `🎁 ${note}` : '';
-                    infoHtml = `<div class="modal-prize-box" style="margin-bottom:0; margin-top:20px;"><div class="modal-prize-highlight-text">${nStr}&nbsp;&nbsp;<span style="font-size:1.1em;">${sStr}</span></div></div>`;
+        const pvImg = document.getElementById('previewImg');
+        if (pvImg) {
+            pvImg.addEventListener('click', function() {
+                if (this.src) {
+                    const lpi = document.getElementById('largePreviewImg');
+                    if(lpi) lpi.src = this.src;
+                    
+                    const noteEl = document.getElementById('prizeNote');
+                    const note = noteEl ? noteEl.value.trim() : '';
+                    let infoHtml = '';
+                    if (note || currentStars > 0) {
+                        const sStr = (currentStars > 0) ? '<span style="color:#f59e0b; text-shadow: 0 2px 4px rgba(245,158,11,0.3);">★</span>'.repeat(currentStars) + '<span style="color:var(--text-light);">★</span>'.repeat(5-currentStars) : '';
+                        const nStr = note ? `🎁 ${note}` : '';
+                        infoHtml = `<div class="modal-prize-box" style="margin-bottom:0; margin-top:20px;"><div class="modal-prize-highlight-text">${nStr}&nbsp;&nbsp;<span style="font-size:1.1em;">${sStr}</span></div></div>`;
+                    }
+                    const modalInfo = document.getElementById('imageModalPrizeInfo');
+                    if(modalInfo) modalInfo.innerHTML = infoHtml;
+                    const imgMod = document.getElementById('imageModal');
+                    if(imgMod) imgMod.style.display = 'flex';
+                    document.activeElement.blur();
                 }
-                document.getElementById('imageModalPrizeInfo').innerHTML = infoHtml;
-                document.getElementById('imageModal').style.display = 'flex';
-                document.activeElement.blur();
-            }
-        });
-        function closeImageModal() { document.getElementById('imageModal').style.display = 'none'; }
+            });
+        }
+
+        function closeImageModal() { 
+            const m = document.getElementById('imageModal');
+            if(m) m.style.display = 'none'; 
+        }
 
         async function generateThumbnail(sourceB64, maxW, maxH, q) {
             if (!sourceB64) return null;
@@ -1328,13 +1418,16 @@
             return generateThumbnail(sourceB64, SYS_CONFIG.imageCompression.maxWidth, SYS_CONFIG.imageCompression.maxHeight, SYS_CONFIG.imageCompression.quality);
         }
 
+        // ================= 9. 预设奖池逻辑 =================
         async function checkAndSaveActivePreset() {
             if (!activePresetId || isRunning) return;
             const p = presets.find(x => x.id === activePresetId);
             if (!p || p.drawn) return;
 
-            const currentNote = document.getElementById('prizeNote').value.trim();
-            const currentBatch = document.getElementById('batchNum').value;
+            const noteEl = document.getElementById('prizeNote');
+            const batchEl = document.getElementById('batchNum');
+            const currentNote = noteEl ? noteEl.value.trim() : '';
+            const currentBatch = batchEl ? batchEl.value : 1;
 
             let isModified = false;
             if (currentNote !== p.note) { p.note = currentNote; isModified = true; }
@@ -1356,9 +1449,11 @@
 
         function rollbackToPrePresetState() {
             if (prePresetState) {
-                document.getElementById('prizeNote').value = prePresetState.note;
+                const pNote = document.getElementById('prizeNote');
+                const bNum = document.getElementById('batchNum');
+                if(pNote) pNote.value = prePresetState.note;
                 lastPrizeNote = prePresetState.note;
-                document.getElementById('batchNum').value = prePresetState.batch;
+                if(bNum) bNum.value = prePresetState.batch;
                 lastBatch = prePresetState.batch;
                 currentStars = prePresetState.stars;
                 renderStars(currentStars);
@@ -1367,13 +1462,14 @@
                 const box = document.getElementById('imgPreviewBox'); 
                 const imgPreview = document.getElementById('previewImg');
                 if (currentImageBase64) {
-                    imgPreview.src = currentImageBase64;
-                    box.style.display = 'block';
+                    if(imgPreview) imgPreview.src = currentImageBase64;
+                    if(box) box.style.display = 'block';
                 } else {
                     currentImageBase64 = null;
-                    imgPreview.src = '';
-                    box.style.display = 'none';
-                    document.getElementById('prizeImage').value = '';
+                    if(imgPreview) imgPreview.src = '';
+                    if(box) box.style.display = 'none';
+                    const pi = document.getElementById('prizeImage');
+                    if(pi) pi.value = '';
                 }
             }
         }
@@ -1393,9 +1489,11 @@
             }
 
             if (!activePresetId) {
+                const pNote = document.getElementById('prizeNote');
+                const bNum = document.getElementById('batchNum');
                 prePresetState = {
-                    note: document.getElementById('prizeNote').value.trim(),
-                    batch: document.getElementById('batchNum').value,
+                    note: pNote ? pNote.value.trim() : '',
+                    batch: bNum ? bNum.value : 1,
                     stars: currentStars,
                     image: currentImageBase64
                 };
@@ -1435,8 +1533,10 @@
             if(isRunning) return;
             if(presets.length >= 20) { alert(t('alertPresetMax')); return; }
             
-            const note = document.getElementById('prizeNote').value.trim();
-            const batch = document.getElementById('batchNum').value;
+            const noteEl = document.getElementById('prizeNote');
+            const batchEl = document.getElementById('batchNum');
+            const note = noteEl ? noteEl.value.trim() : '';
+            const batch = batchEl ? batchEl.value : 1;
             const pName = note || (currentLang === 'zh' ? '未命名奖项' : 'Unnamed Prize');
             
             let compressedB64 = await forceLowResCompress(currentImageBase64);
@@ -1454,16 +1554,20 @@
             addSettingRecord(t('logPresetAdd', {name: pName}));
             
             activePresetId = null;
-            document.getElementById('prizeNote').value = '';
+            if(noteEl) noteEl.value = '';
             lastPrizeNote = '';
-            document.getElementById('batchNum').value = 1;
+            if(batchEl) batchEl.value = 1;
             lastBatch = 1;
             currentStars = 0;
             renderStars(0);
             currentImageBase64 = null;
-            document.getElementById('previewImg').src = '';
-            document.getElementById('imgPreviewBox').style.display = 'none';
-            document.getElementById('prizeImage').value = '';
+            
+            const pvImg = document.getElementById('previewImg');
+            const bx = document.getElementById('imgPreviewBox');
+            const pi = document.getElementById('prizeImage');
+            if(pvImg) pvImg.src = '';
+            if(bx) bx.style.display = 'none';
+            if(pi) pi.value = '';
             prePresetState = { note: '', batch: 1, stars: 0, image: null };
 
             renderPresets();
@@ -1472,9 +1576,12 @@
 
         function renderPresets() {
             const list = document.getElementById('presetList');
+            if(!list) return;
             
-            document.getElementById('presetCounterZh').innerText = `(${presets.length}/20)`;
-            document.getElementById('presetCounterEn').innerText = `(${presets.length}/20)`;
+            const zhCnt = document.getElementById('presetCounterZh');
+            const enCnt = document.getElementById('presetCounterEn');
+            if(zhCnt) zhCnt.innerText = `(${presets.length}/20)`;
+            if(enCnt) enCnt.innerText = `(${presets.length}/20)`;
 
             if (presets.length === 0) {
                 list.innerHTML = `<div style="text-align:center; color:var(--text-light); padding:20px; font-size:13px;" id="presetEmptyHint"><span class="lang-zh">暂无预设。在左侧填好奖品后点击上方添加。</span><span class="lang-en">No presets. Fill prize info and click add.</span></div>`;
@@ -1502,8 +1609,8 @@
                     ${imgTag}
                     <div class="preset-controls">
                         <div class="preset-move-group">
-                            ${index > 0 ? `<button class="preset-move-btn" onclick="movePreset(event, '${p.id}', -1)" title="${currentLang==='zh'?'上移':'Move Up'}"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg></button>` : `<div style="width:18px;height:18px;"></div>`}
-                            ${index < presets.length - 1 ? `<button class="preset-move-btn" onclick="movePreset(event, '${p.id}', 1)" title="${currentLang==='zh'?'下移':'Move Down'}"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></button>` : `<div style="width:18px;height:18px;"></div>`}
+                            ${index > 0 ? `<button class="preset-move-btn" onclick="movePreset(event, '${p.id}', -1)" title="${currentLang==='zh'?'上移':'Move Up'}"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg></button>` : `<div class="preset-move-placeholder"></div>`}
+                            ${index < presets.length - 1 ? `<button class="preset-move-btn" onclick="movePreset(event, '${p.id}', 1)" title="${currentLang==='zh'?'下移':'Move Down'}"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></button>` : `<div class="preset-move-placeholder"></div>`}
                         </div>
                     </div>
                 `;
@@ -1515,9 +1622,11 @@
             const p = presets.find(x => x.id === id);
             if(!p || p.drawn) return;
 
-            document.getElementById('prizeNote').value = p.note;
+            const pNote = document.getElementById('prizeNote');
+            const bNum = document.getElementById('batchNum');
+            if(pNote) pNote.value = p.note;
             lastPrizeNote = p.note;
-            document.getElementById('batchNum').value = p.batch;
+            if(bNum) bNum.value = p.batch;
             lastBatch = p.batch;
             currentStars = p.stars;
             renderStars(currentStars);
@@ -1526,13 +1635,14 @@
             const box = document.getElementById('imgPreviewBox'); 
             const imgPreview = document.getElementById('previewImg');
             if(currentImageBase64) {
-                imgPreview.src = currentImageBase64;
-                box.style.display = 'block';
+                if(imgPreview) imgPreview.src = currentImageBase64;
+                if(box) box.style.display = 'block';
             } else {
                 currentImageBase64 = null; 
-                imgPreview.src = ''; 
-                box.style.display = 'none'; 
-                document.getElementById('prizeImage').value = ''; 
+                if(imgPreview) imgPreview.src = ''; 
+                if(box) box.style.display = 'none'; 
+                const pImg = document.getElementById('prizeImage');
+                if(pImg) pImg.value = ''; 
             }
 
             activePresetId = id;
@@ -1542,10 +1652,12 @@
             addYellowRecord(t('logPrize', {val: pName}));
         }
 
+        // ================= 10. 输入框格式校验与状态绑定 =================
         function validatePositiveInt(val) { return /^\d+$/.test(val) && Number(val) > 0; }
         
         function setupNumberInput(id, getPrevValue, setPrevValue, isRange) {
             const el = document.getElementById(id);
+            if(!el) return;
             el.addEventListener('blur', function() {
                 if (this.validity && this.validity.badInput) {
                     alert(t('alertPositive')); 
@@ -1556,8 +1668,10 @@
                 if (!validatePositiveInt(val) || val === "") { alert(t('alertPositive')); this.value = getPrevValue(); return; }
                 
                 if (isRange) {
-                    let testMin = id === 'minNum' ? Number(val) : Number(document.getElementById('minNum').value);
-                    let testMax = id === 'maxNum' ? Number(val) : Number(document.getElementById('maxNum').value);
+                    const minEl = document.getElementById('minNum');
+                    const maxEl = document.getElementById('maxNum');
+                    let testMin = id === 'minNum' ? Number(val) : Number(minEl ? minEl.value : 1);
+                    let testMax = id === 'maxNum' ? Number(val) : Number(maxEl ? maxEl.value : 100);
                     if (testMax - testMin > 100000) {
                         alert(currentLang === 'zh' ? '⚠️ 性能保护：号码区间不能超过 10 万！' : '⚠️ Memory limit: Range cannot exceed 100,000!');
                         this.value = getPrevValue(); return;
@@ -1596,59 +1710,71 @@
             });
             el.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); this.blur(); } });
         }
+        
         setupNumberInput('minNum', () => lastMin, (v) => lastMin = v, true);
         setupNumberInput('maxNum', () => lastMax, (v) => lastMax = v, true);
         setupNumberInput('batchNum', () => lastBatch, (v) => lastBatch = v, false);
 
         const excludeEl = document.getElementById('excludeNum');
-        excludeEl.addEventListener('blur', function() {
-            let val = this.value.replace(/\n/g, ' ').trim(); 
-            if (!val) { 
-                this.value = ''; 
-                if (lastExclude !== '') { 
-                    lastExclude = ''; updateStatsBoard(); const stats=getPoolStats(); 
-                    addSettingRecord(t('logExcludeClear', {rem: stats.remaining, tot: stats.total})); saveState();
-                } 
-                return; 
-            }
-            
-            const parts = val.split(/[,，]/); let valid = []; let err = false; let rngErr = false;
-            for (let part of parts) {
-                const trim = part.trim(); if (trim === '') continue; 
-                if (trim.includes('-') && !isCustomPool) { 
-                    const r = trim.split('-'); if (r.length !== 2) { err = true; break; }
-                    if (!validatePositiveInt(r[0].trim()) || !validatePositiveInt(r[1].trim())) { err = true; break; }
-                    const a = Number(r[0].trim()); const b = Number(r[1].trim());
-                    if (a > b) { rngErr = true; break; }
-                    for (let i = a; i <= b; i++) valid.push(i);
-                } else {
-                    if(!isCustomPool && !validatePositiveInt(trim)) { err = true; break; }
-                    valid.push(isCustomPool ? trim : Number(trim));
+        if(excludeEl) {
+            excludeEl.addEventListener('blur', function() {
+                let val = this.value.replace(/\n/g, ' ').trim(); 
+                if (!val) { 
+                    this.value = ''; 
+                    if (lastExclude !== '') { 
+                        lastExclude = ''; updateStatsBoard(); const stats=getPoolStats(); 
+                        addSettingRecord(t('logExcludeClear', {rem: stats.remaining, tot: stats.total})); saveState();
+                    } 
+                    return; 
                 }
-            }
-            if (rngErr) { alert(t('alertRange')); this.value = lastExclude; return; }
-            if (err) { alert(t('alertFormat')); this.value = lastExclude; return; }
-            
-            if(isCustomPool) { valid = [...new Set(valid)]; } 
-            else { valid = [...new Set(valid)].sort((a, b) => a - b); }
-            
-            const newVal = valid.join(', '); this.value = newVal;
-            if (lastExclude !== newVal) { lastExclude = newVal; updateStatsBoard(); const stats = getPoolStats(); addSettingRecord(t('logExclude', {val: newVal, rem: stats.remaining, tot: stats.total})); saveState();}
-        });
-        excludeEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); this.blur(); } });
+                
+                const parts = val.split(/[,，]/); let valid = []; let err = false; let rngErr = false;
+                for (let part of parts) {
+                    const trim = part.trim(); if (trim === '') continue; 
+                    if (trim.includes('-') && !isCustomPool) { 
+                        const r = trim.split('-'); if (r.length !== 2) { err = true; break; }
+                        if (!validatePositiveInt(r[0].trim()) || !validatePositiveInt(r[1].trim())) { err = true; break; }
+                        const a = Number(r[0].trim()); const b = Number(r[1].trim());
+                        if (a > b) { rngErr = true; break; }
+                        for (let i = a; i <= b; i++) valid.push(i);
+                    } else {
+                        if(!isCustomPool && !validatePositiveInt(trim)) { err = true; break; }
+                        valid.push(isCustomPool ? trim : Number(trim));
+                    }
+                }
+                if (rngErr) { alert(t('alertRange')); this.value = lastExclude; return; }
+                if (err) { alert(t('alertFormat')); this.value = lastExclude; return; }
+                
+                if(isCustomPool) { valid = [...new Set(valid)]; } 
+                else { valid = [...new Set(valid)].sort((a, b) => a - b); }
+                
+                const newVal = valid.join(', '); this.value = newVal;
+                if (lastExclude !== newVal) { lastExclude = newVal; updateStatsBoard(); const stats = getPoolStats(); addSettingRecord(t('logExclude', {val: newVal, rem: stats.remaining, tot: stats.total})); saveState();}
+            });
+            excludeEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); this.blur(); } });
+        }
 
-        document.getElementById('noRepeat').addEventListener('change', (e) => { updateStatsBoard(); const stats = getPoolStats(); addSettingRecord(t('logNoRepeat', {status: e.target.checked ? t('on') : t('off'), rem: stats.remaining, tot: stats.total})); saveState(); });
+        const noRepeatEl = document.getElementById('noRepeat');
+        if(noRepeatEl) {
+            noRepeatEl.addEventListener('change', (e) => { 
+                updateStatsBoard(); const stats = getPoolStats(); addSettingRecord(t('logNoRepeat', {status: e.target.checked ? t('on') : t('off'), rem: stats.remaining, tot: stats.total})); saveState(); 
+            });
+        }
         
-        document.getElementById('prizeNote').addEventListener('blur', function(e) { 
-            const val = e.target.value.trim(); 
-            if (val !== lastPrizeNote) {
-                lastPrizeNote = val;
-                saveState();
-                checkAndSaveActivePreset(); 
-            }
-        });
-        document.getElementById('prizeNote').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); this.blur(); } });
+        const prizeNoteEl = document.getElementById('prizeNote');
+        if(prizeNoteEl) {
+            prizeNoteEl.addEventListener('blur', function(e) { 
+                const val = e.target.value.trim(); 
+                if (val !== lastPrizeNote) {
+                    lastPrizeNote = val;
+                    saveState();
+                    checkAndSaveActivePreset(); 
+                }
+            });
+            prizeNoteEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); this.blur(); } });
+        }
 
+        // ================= 11. 星级打分控件 =================
         const starElements = document.querySelectorAll('.star-rating .star');
         function renderStars(count) { starElements.forEach((s, i) => { s.textContent = '★'; s.style.color = i < count ? '#f59e0b' : 'var(--border-color)'; s.style.textShadow = i < count ? '0 2px 5px rgba(245,158,11,0.3)' : 'none'; }); }
         starElements.forEach(star => {
@@ -1663,18 +1789,27 @@
             });
         });
 
+        // ================= 12. 快捷键与动画粒子特效 =================
         function updateClock() {
             const now = new Date(); const y = now.getFullYear(); const m = String(now.getMonth()+1).padStart(2,'0'); const d = String(now.getDate()).padStart(2,'0');
             const hh = String(now.getHours()).padStart(2,'0'); const mm = String(now.getMinutes()).padStart(2,'0'); const ss = String(now.getSeconds()).padStart(2,'0');
-            document.getElementById('sysClock').textContent = `${y}-${m}-${d} ${hh}:${mm}:${ss}`; return `${y}-${m}-${d} ${hh}:${mm}:${ss}`; 
+            const clk = document.getElementById('sysClock');
+            if(clk) clk.textContent = `${y}-${m}-${d} ${hh}:${mm}:${ss}`; 
+            return `${y}-${m}-${d} ${hh}:${mm}:${ss}`; 
         }
-        setInterval(updateClock, 1000); 
+        setInterval(updateClock, 1000);
 
-        function isAnyModalOpen() { return document.getElementById('resultModal').style.display === 'flex' || document.getElementById('poolModal').style.display === 'flex' || document.getElementById('imageModal').style.display === 'flex'; }
+        function isAnyModalOpen() { 
+            const rm = document.getElementById('resultModal');
+            const pm = document.getElementById('poolModal');
+            const im = document.getElementById('imageModal');
+            return (rm && rm.style.display === 'flex') || (pm && pm.style.display === 'flex') || (im && im.style.display === 'flex'); 
+        }
         
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
-                if (document.getElementById('resultModal').style.display === 'flex') {
+                const rm = document.getElementById('resultModal');
+                if (rm && rm.style.display === 'flex') {
                     event.preventDefault(); closeResultModal(); return;
                 }
             }
@@ -1684,7 +1819,11 @@
             if (event.code === 'Space') {
                 event.preventDefault();
                 if (isAnyModalOpen() || isSettling) return; 
-                const btnRect = document.getElementById('controlBtn').getBoundingClientRect(); createButtonParticles(btnRect.left + btnRect.width/2, btnRect.top + btnRect.height/2);
+                const cBtn = document.getElementById('controlBtn');
+                if(cBtn) {
+                    const btnRect = cBtn.getBoundingClientRect(); 
+                    createButtonParticles(btnRect.left + btnRect.width/2, btnRect.top + btnRect.height/2);
+                }
                 toggleDraw();
             } else if (event.code === 'KeyD') { event.preventDefault(); toggleTheme();
             } else if (event.code === 'KeyF') { event.preventDefault(); toggleFullscreen();
@@ -1711,15 +1850,18 @@
                 p.animate([ { transform: 'translate(-50%, -50%) scale(1) rotate(0deg)', opacity: 1 }, { transform: `translate(calc(-50% + ${Math.cos(angle)*v}px), calc(-50% + ${Math.sin(angle)*v-40}px)) scale(0) rotate(${Math.random()*360+180}deg)`, opacity: 0 } ], { duration: Math.random()*500+400, easing: 'cubic-bezier(0.25, 1, 0.5, 1)' }).onfinish = () => p.remove();
             }
         }
-        const confettiCanvas = document.getElementById('confettiCanvas'); const ctx = confettiCanvas.getContext('2d'); let confettiActive = false; let confettiParticles = [];
+        const confettiCanvas = document.getElementById('confettiCanvas'); 
+        let ctx = null; if(confettiCanvas) ctx = confettiCanvas.getContext('2d'); 
+        let confettiActive = false; let confettiParticles = [];
         function fireConfettiEngine() {
+            if(!confettiCanvas || !ctx) return;
             confettiCanvas.width = window.innerWidth; confettiCanvas.height = window.innerHeight; confettiCanvas.style.display = 'block'; confettiParticles = [];
             const colors = ['#e53e3e', '#f56565', '#d69e2e', '#fbbf24', '#38a169', '#3182ce', '#805ad5', '#ec4899'];
             for(let i=0; i<350; i++) confettiParticles.push({ x: Math.random()*confettiCanvas.width, y: Math.random()*-confettiCanvas.height*1.5, vx: (Math.random()-0.5)*2, vy: Math.random()*3+2, size: Math.random()*12+6, color: colors[Math.floor(Math.random()*colors.length)], rotation: Math.random()*360, rotationSpeed: (Math.random()-0.5)*5, shape: Math.random()>0.5?'rect':'circle', wobbleSpeed: Math.random()*0.05+0.02, wobbleAngle: Math.random()*Math.PI*2 });
             if(!confettiActive) { confettiActive = true; renderConfetti(); }
         }
         function renderConfetti() {
-            if(!confettiActive) return; ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); let active = 0;
+            if(!confettiActive || !ctx) return; ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); let active = 0;
             confettiParticles.forEach(p => {
                 p.wobbleAngle += p.wobbleSpeed; p.x += Math.sin(p.wobbleAngle)*1.5; p.y += p.vy; p.rotation += p.rotationSpeed;
                 if (p.y < confettiCanvas.height + 50) active++; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rotation*Math.PI/180); ctx.fillStyle = p.color;
@@ -1728,6 +1870,7 @@
             if(active > 0) requestAnimationFrame(renderConfetti); else { confettiActive = false; ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); confettiCanvas.style.display = 'none'; }
         }
 
+        // ================= 13. 核心抽奖随机数与池余量计算 =================
         function getSecureRandom(min, max) {
             const range = max - min + 1; const maxValid = 4294967295 - (4294967295 % range); 
             let randomArray = new Uint32Array(1); let randomValue;
@@ -1736,7 +1879,8 @@
         }
         
         function getPoolStats() {
-            const noRepeat = document.getElementById('noRepeat').checked;
+            const noRepeatEl = document.getElementById('noRepeat');
+            const noRepeat = noRepeatEl ? noRepeatEl.checked : true;
             let excludes = [];
             
             if (isCustomPool) {
@@ -1753,7 +1897,8 @@
                 return { total, remaining, excludes, min: null, max: null, theoryMean: '--', theoryVariance: '--' };
                 
             } else {
-                const excludeStr = document.getElementById('excludeNum').value;
+                const excludeEl = document.getElementById('excludeNum');
+                const excludeStr = excludeEl ? excludeEl.value : '';
                 excludeStr.split(/[,，]/).forEach(part => {
                     let trim = part.trim();
                     if(!trim) return;
@@ -1767,8 +1912,10 @@
 
                 let total = 0, remaining = 0, theorySum = 0; 
                 let validInit = [];
-                const min = parseInt(document.getElementById('minNum').value) || 1; 
-                const max = parseInt(document.getElementById('maxNum').value) || 100;
+                const minEl = document.getElementById('minNum');
+                const maxEl = document.getElementById('maxNum');
+                const min = minEl ? parseInt(minEl.value) || 1 : 1; 
+                const max = maxEl ? parseInt(maxEl.value) || 100 : 100;
                 
                 for (let i = min; i <= max; i++) {
                     if (!excludes.includes(i)) { total++; theorySum += i; validInit.push(i); if (noRepeat) { if (!globalDrawnHistory.includes(i)) remaining++; } else { remaining++; } }
@@ -1779,7 +1926,11 @@
         }
 
         function updateStatsBoard() {
-            const stats = getPoolStats(); document.getElementById('poolSizeVal').textContent = `${stats.remaining}/${stats.total}`; document.getElementById('theoryMean').textContent = stats.theoryMean;
+            const stats = getPoolStats(); 
+            const psv = document.getElementById('poolSizeVal');
+            const tm = document.getElementById('theoryMean');
+            if(psv) psv.textContent = `${stats.remaining}/${stats.total}`; 
+            if(tm) tm.textContent = stats.theoryMean;
             
             if (isCustomPool) {
                 const alertCountEl = document.getElementById('customPoolAlertCount');
@@ -1788,255 +1939,118 @@
 
             let len = globalDrawnHistory.length;
             if (len === 0 || isCustomPool) { 
-                document.getElementById('actualMean').textContent = '--'; 
-                document.getElementById('varianceVal').innerHTML = `<span class="empty-text">--</span>`;
-                document.getElementById('oddEvenVal').innerHTML = `<span class="empty-text">--</span>`; 
-                document.getElementById('heatmapVal').innerHTML = `<span class="empty-text">--</span>`;
+                const am = document.getElementById('actualMean');
+                const vv = document.getElementById('varianceVal');
+                const oev = document.getElementById('oddEvenVal');
+                const hmv = document.getElementById('heatmapVal');
+                if(am) am.textContent = '--'; 
+                if(vv) vv.innerHTML = `<span class="empty-text">--</span>`;
+                if(oev) oev.innerHTML = `<span class="empty-text">--</span>`; 
+                if(hmv) hmv.innerHTML = `<span class="empty-text">--</span>`;
                 return;
             }
-            const actualMean = globalDrawnHistory.reduce((a,b)=>a+b,0) / len; document.getElementById('actualMean').textContent = actualMean.toFixed(2);
+            const actualMean = globalDrawnHistory.reduce((a,b)=>a+b,0) / len; 
+            const am = document.getElementById('actualMean');
+            if(am) am.textContent = actualMean.toFixed(2);
             let actualVar = len > 1 ? globalDrawnHistory.reduce((a,b)=>a+Math.pow(b-actualMean,2),0)/len : 0;
-            document.getElementById('varianceVal').innerHTML = `<span style="color:var(--highlight-text); font-size:14px;">${actualVar.toFixed(1)}</span> <span style="color:var(--text-light);font-weight:normal;font-size:14px;">/ ${stats.theoryVariance}</span>`;
+            const vv = document.getElementById('varianceVal');
+            if(vv) vv.innerHTML = `<span style="color:var(--highlight-text); font-size:14px;">${actualVar.toFixed(1)}</span> <span style="color:var(--text-light);font-weight:normal;font-size:14px;">/ ${stats.theoryVariance}</span>`;
             
             let odd = 0; globalDrawnHistory.forEach(n => n%2!==0 && odd++); let oddPct = Math.round((odd/len)*100);
-            document.getElementById('oddEvenVal').innerHTML = `<span class="badge bg-odd">${currentLang==='zh'?'奇':'Odd'} ${oddPct}%</span> <span class="badge bg-even">${currentLang==='zh'?'偶':'Even'} ${100-oddPct}%</span>`;
+            const oev = document.getElementById('oddEvenVal');
+            if(oev) oev.innerHTML = `<span class="badge bg-odd">${currentLang==='zh'?'奇':'Odd'} ${oddPct}%</span> <span class="badge bg-even">${currentLang==='zh'?'偶':'Even'} ${100-oddPct}%</span>`;
 
             let range = stats.max - stats.min;
-            if(range===0) document.getElementById('heatmapVal').innerHTML = `<span class="empty-text">-</span>`;
-            else {
+            const hmv = document.getElementById('heatmapVal');
+            if(range===0 && hmv) hmv.innerHTML = `<span class="empty-text">-</span>`;
+            else if(hmv) {
                 let low = 0, mid = 0; let t1 = stats.min + range/3; let t2 = stats.min + 2*range/3;
                 globalDrawnHistory.forEach(n => { if(n<=t1) low++; else if(n<=t2) mid++; });
                 let lowPct = Math.round(low/len*100); let midPct = Math.round(mid/len*100);
-                document.getElementById('heatmapVal').innerHTML = `<span class="badge bg-low" title="${t('secLow')}">${lowPct}%</span> <span class="badge bg-mid" title="${t('secMid')}">${midPct}%</span> <span class="badge bg-high" title="${t('secHigh')}">${100-lowPct-midPct}%</span>`;
+                hmv.innerHTML = `<span class="badge bg-low" title="${t('secLow')}">${lowPct}%</span> <span class="badge bg-mid" title="${t('secMid')}">${midPct}%</span> <span class="badge bg-high" title="${t('secHigh')}">${100-lowPct-midPct}%</span>`;
             }
         }
 
         function performSilentReset() { 
             globalDrawnHistory = []; 
             drawCount = 0; 
-            document.getElementById('numberDisplay').innerHTML = "?"; 
+            const nd = document.getElementById('numberDisplay');
+            if(nd) nd.innerHTML = "?"; 
             updateStatsBoard(); 
         }
-        
-        function resetPoolWithPrompt() { 
-            if (isRunning) return; 
-            if (!confirm(t('alertReset'))) return; 
-            
-            document.getElementById('excludeNum').value = '';
-            lastExclude = '';
-            
-            performSilentReset(); 
-            const stats = getPoolStats(); 
-            addSystemRecord(t('logReset', {rem: stats.remaining, tot: stats.total})); 
-            saveState();
+
+        // ================= 14. 抽奖生命周期流转 (Start/Stop) =================
+        const controlBtn = document.getElementById('controlBtn');
+        if(controlBtn) {
+            controlBtn.addEventListener('click', function(e) { 
+                if(isAnyModalOpen() || isSettling) return; 
+                createButtonParticles(e.clientX, e.clientY); 
+                toggleDraw(); 
+            });
         }
 
-        window.toggleInvalidate = function(internalId, rawNums) {
-            let logEntry = globalAuditLogs.find(l => l.internalId === internalId);
-            if (!logEntry) return;
-
-            let nums = [];
-            let numsStr = '';
-            if (Array.isArray(rawNums)) {
-                nums = isCustomPool ? rawNums.map(String) : rawNums.map(n => parseInt(n, 10));
-                numsStr = nums.join(', ');
-            } else if (typeof rawNums === 'string') {
-                nums = isCustomPool ? rawNums.split(',').map(n => n.trim()) : rawNums.split(',').map(n => parseInt(n.trim(), 10));
-                numsStr = rawNums;
-            } else if (typeof rawNums === 'number') {
-                nums = [isCustomPool ? String(rawNums) : rawNums];
-                numsStr = String(rawNums);
-            }
-
-            if (!logEntry.invalidated) {
-                if (!confirm(t('invalidateConfirm'))) return;
-                nums.forEach(n => { const idx = globalDrawnHistory.indexOf(n); if(idx > -1) globalDrawnHistory.splice(idx, 1); });
-                logEntry.invalidated = true; 
+        const numDispEl = document.getElementById('numberDisplay');
+        if(numDispEl) {
+            numDispEl.addEventListener('dblclick', function() {
+                if (isRunning) return; 
+                const stats = getPoolStats(); const poolContent = document.getElementById('poolContent'); 
+                const nrEl = document.getElementById('noRepeat');
+                const noRepeat = nrEl ? nrEl.checked : true;
+                let currentAvailable = [];
                 
-                if (logEntry.presetId) {
-                    let p = presets.find(x => x.id === logEntry.presetId);
-                    if (p) {
-                        p.drawn = false;
-                        if (activePresetId !== p.id) {
-                            if (activePresetId) {
-                                checkAndSaveActivePreset();
-                            } else {
-                                prePresetState = {
-                                    note: document.getElementById('prizeNote').value.trim(),
-                                    batch: document.getElementById('batchNum').value,
-                                    stars: currentStars,
-                                    image: currentImageBase64
-                                };
-                            }
-                            loadPreset(p.id);
-                        } else {
-                            renderPresets();
-                        }
+                if (isCustomPool) {
+                    customPoolOrigin.forEach(item => {
+                        if (stats.excludes.includes(String(item))) return;
+                        if (noRepeat && globalDrawnHistory.includes(item)) return;
+                        currentAvailable.push(item);
+                    });
+                } else {
+                    for (let i = stats.min; i <= stats.max; i++) {
+                        if (stats.excludes.includes(i)) continue;
+                        if (noRepeat && globalDrawnHistory.includes(i)) continue;
+                        currentAvailable.push(i);
                     }
                 }
+
+                const count = currentAvailable.length; 
+                const pct = document.getElementById('poolCountTitle');
+                if(pct) pct.innerHTML = t('poolTitle', {n: count});
+                if(!poolContent) return;
+
+                if (count === 0) { 
+                    poolContent.innerHTML = `<div class="pool-empty">${t('poolEmpty')}</div>`; 
+                } else if (count <= 100) { 
+                    poolContent.innerHTML = `<div style="max-height:400px;overflow-y:auto;text-align:left;padding:10px;">` + 
+                        currentAvailable.map(n => `
+                            <div class="pool-badge-wrapper">
+                                <span class="pool-badge">${n}</span>
+                                <button class="pool-badge-del" onclick="removeCandidateFromPreview('${String(n).replace(/'/g, "\\'")}')" title="从号池移除">×</button>
+                            </div>
+                        `).join('') + `</div>`;
+                } 
+                else if (count <= 1000) { poolContent.innerHTML = `<div class="pool-text-view">${currentAvailable.join(', ')}</div>`; } 
+                else { poolContent.innerHTML = `<div class="pool-huge">${t('poolHuge', {n:count})}</div>`; }
                 
-                const row = document.getElementById('hist-row-' + internalId); if (row) row.classList.add('invalidated');
-                const btn = document.getElementById('btn-invalid-' + internalId);
-                if (btn) { btn.innerText = currentLang === 'zh' ? '恢复' : 'Restore'; btn.classList.add('restore-btn'); btn.title = currentLang === 'zh' ? '恢复' : 'Restore'; }
-                
-                updateStatsBoard(); addSystemRecord(t('logInvalidated', {n: logEntry.round.replace('Round ',''), nums: numsStr})); saveState();
-            } else {
-                if (!confirm(t('restoreConfirm'))) return;
-                globalDrawnHistory.push(...nums); 
-                logEntry.invalidated = false; 
-                
-                if (logEntry.presetId) {
-                    let p = presets.find(x => x.id === logEntry.presetId);
-                    if (p) {
-                        p.drawn = true;
-                        if (activePresetId === p.id) {
-                            activePresetId = null;
-                            rollbackToPrePresetState();
-                        }
-                        renderPresets();
-                    }
-                }
-                
-                const row = document.getElementById('hist-row-' + internalId); if (row) row.classList.remove('invalidated');
-                const btn = document.getElementById('btn-invalid-' + internalId);
-                if (btn) { btn.innerText = currentLang === 'zh' ? '作废' : 'Invalidate'; btn.classList.remove('restore-btn'); btn.title = currentLang === 'zh' ? '作废' : 'Invalidate'; }
-                
-                updateStatsBoard(); addSystemRecord(t('logRestored', {n: logEntry.round.replace('Round ',''), nums: numsStr})); saveState();
-            }
-        };
-
-        window.cancelExclusion = function(internalId, itemStr) {
-            if (isRunning) return;
-            let logEntry = globalAuditLogs.find(l => l.internalId === internalId);
-            if (!logEntry || logEntry.invalidated) return;
-
-            if (isCustomPool) {
-                const idx = customPoolExcluded.indexOf(String(itemStr));
-                if (idx > -1) customPoolExcluded.splice(idx, 1);
-            }
-
-            logEntry.invalidated = true;
-
-            const row = document.getElementById('hist-row-' + internalId);
-            if (row) row.classList.add('invalidated');
-            
-            const btn = document.getElementById('btn-cancel-' + internalId);
-            if (btn) btn.style.display = 'none';
-
-            updateStatsBoard();
-            saveState();
-        };
-
-        window.removeCandidateFromPreview = function(item) {
-            if (isCustomPool) {
-                if (!customPoolExcluded.includes(String(item))) {
-                    customPoolExcluded.push(String(item));
-                    updateStatsBoard();
-                    const stats = getPoolStats();
-                    const internalId = Date.now() + Math.floor(Math.random() * 10000);
-                    const timeStr = updateClock();
-                    const msg = currentLang === 'zh' ? 
-                        `[透视管理] 从号池手动剔除: ${item}` : 
-                        `[Preview] Excluded manually: ${item}`;
-
-                    globalAuditLogs.push({ internalId: internalId, time: timeStr, type: 'Conf', round: '-', content: msg, prize: '-', stars: '-', poolInfo: `${stats.remaining}/${stats.total}`, image: null, invalidated: false, excludedItem: String(item) });
-
-                    const cancelText = currentLang === 'zh' ? '取消' : 'Cancel';
-                    const li = document.createElement('li');
-                    li.className = 'history-item';
-                    li.id = `hist-row-${internalId}`;
-                    li.style.cssText = "background:var(--conf-log-bg); border-radius:8px; padding:10px 5px; margin-top:5px;";
-                    li.innerHTML = `
-                        <div class="item-col-left" style="color:#38a169;font-size:14px;padding-left:10px;">[${t('conf')}]</div>
-                        <div class="item-col-middle" style="align-items:flex-end; min-width:0;">
-                            <div class="exclude-log-text" style="color:#2f855a;font-size:14px;text-align:right; word-break: break-all; white-space: normal; line-height: 1.5;">${msg}</div>
-                            <div class="pool-info">(余量: ${stats.remaining})</div>
-                        </div>
-                        <div class="item-col-right" style="padding-right:10px;">
-                            <span>${timeStr.replace(' ','<br>')}</span>
-                            <button class="invalid-btn" id="btn-cancel-${internalId}" onclick="cancelExclusion(${internalId}, '${String(item).replace(/'/g, "\\'")}')" title="${cancelText}">${cancelText}</button>
-                        </div>`;
-
-                    document.getElementById('historyList').insertBefore(li, document.getElementById('historyList').firstChild);
-
-                    saveState();
-                    document.getElementById('numberDisplay').dispatchEvent(new Event('dblclick'));
-                }
-            } else {
-                const excludeEl = document.getElementById('excludeNum');
-                let currentExcludes = excludeEl.value.split(/[,，]/).map(s => s.trim()).filter(s => s !== '');
-                
-                if(!currentExcludes.includes(String(item))) {
-                    currentExcludes.push(String(item));
-                    excludeEl.value = currentExcludes.join(', ');
-                    lastExclude = excludeEl.value; 
-                    
-                    updateStatsBoard();
-                    const stats = getPoolStats();
-                    
-                    addSettingRecord(currentLang === 'zh' ? 
-                        `[透视管理] 从号池手动剔除: ${item} (余量: ${stats.remaining})` : 
-                        `[Preview] Excluded manually: ${item} (Rem: ${stats.remaining})`);
-                    
-                    saveState();
-                    document.getElementById('numberDisplay').dispatchEvent(new Event('dblclick'));
-                }
-            }
-        };
-
-        document.getElementById('controlBtn').addEventListener('click', function(e) { 
-            if(isAnyModalOpen() || isSettling) return; 
-            createButtonParticles(e.clientX, e.clientY); 
-            toggleDraw(); 
-        });
-
-        document.getElementById('numberDisplay').addEventListener('dblclick', function() {
-            if (isRunning) return; 
-            const stats = getPoolStats(); const poolContent = document.getElementById('poolContent'); const noRepeat = document.getElementById('noRepeat').checked;
-            let currentAvailable = [];
-            
-            if (isCustomPool) {
-                customPoolOrigin.forEach(item => {
-                    if (stats.excludes.includes(String(item))) return;
-                    if (noRepeat && globalDrawnHistory.includes(item)) return;
-                    currentAvailable.push(item);
-                });
-            } else {
-                for (let i = stats.min; i <= stats.max; i++) {
-                    if (stats.excludes.includes(i)) continue;
-                    if (noRepeat && globalDrawnHistory.includes(i)) continue;
-                    currentAvailable.push(i);
-                }
-            }
-
-            const count = currentAvailable.length; document.getElementById('poolCountTitle').innerHTML = t('poolTitle', {n: count});
-            if (count === 0) { 
-                poolContent.innerHTML = `<div class="pool-empty">${t('poolEmpty')}</div>`; 
-            } else if (count <= 100) { 
-                poolContent.innerHTML = `<div style="max-height:400px;overflow-y:auto;text-align:left;padding:10px;">` + 
-                    currentAvailable.map(n => `
-                        <div class="pool-badge-wrapper">
-                            <span class="pool-badge">${n}</span>
-                            <button class="pool-badge-del" onclick="removeCandidateFromPreview('${String(n).replace(/'/g, "\\'")}')" title="从号池移除">×</button>
-                        </div>
-                    `).join('') + `</div>`;
-            } 
-            else if (count <= 1000) { poolContent.innerHTML = `<div class="pool-text-view">${currentAvailable.join(', ')}</div>`; } 
-            else { poolContent.innerHTML = `<div class="pool-huge">${t('poolHuge', {n:count})}</div>`; }
-            
-            document.getElementById('poolModal').style.display = 'flex';
-        });
+                const pm = document.getElementById('poolModal');
+                if(pm) pm.style.display = 'flex';
+            });
+        }
 
         function toggleDraw() {
             if (isAnyModalOpen() || isSettling) return;
             const pInput = document.getElementById('prizeNote'); const eInput = document.getElementById('excludeNum');
 
             if (!isRunning) {
-                if (!pInput.value) pInput.classList.add('hide-placeholder'); if (!eInput.value) eInput.classList.add('hide-placeholder');
-                const stats = getPoolStats(); const batch = parseInt(document.getElementById('batchNum').value); const noRepeat = document.getElementById('noRepeat').checked;
+                if (pInput && !pInput.value) pInput.classList.add('hide-placeholder'); 
+                if (eInput && !eInput.value) eInput.classList.add('hide-placeholder');
+                const stats = getPoolStats(); 
+                const bEl = document.getElementById('batchNum');
+                const batch = bEl ? parseInt(bEl.value) : 1; 
+                const nrEl = document.getElementById('noRepeat');
+                const noRepeat = nrEl ? nrEl.checked : true;
                 
-                if (!isCustomPool && (isNaN(stats.min) || isNaN(stats.max) || stats.min > stats.max)) { alert(t('alertMinMax')); pInput.classList.remove('hide-placeholder'); eInput.classList.remove('hide-placeholder'); return; }
-                if (isNaN(batch) || batch <= 0) { alert(t('alertBatch')); pInput.classList.remove('hide-placeholder'); eInput.classList.remove('hide-placeholder'); return; }
+                if (!isCustomPool && (isNaN(stats.min) || isNaN(stats.max) || stats.min > stats.max)) { alert(t('alertMinMax')); if(pInput) pInput.classList.remove('hide-placeholder'); if(eInput) eInput.classList.remove('hide-placeholder'); return; }
+                if (isNaN(batch) || batch <= 0) { alert(t('alertBatch')); if(pInput) pInput.classList.remove('hide-placeholder'); if(eInput) eInput.classList.remove('hide-placeholder'); return; }
                 
                 currentPool = [];
                 if (isCustomPool) {
@@ -2047,15 +2061,24 @@
                     for (let i = stats.min; i <= stats.max; i++) { if (!stats.excludes.includes(i) && !(noRepeat && globalDrawnHistory.includes(i))) currentPool.push(i); }
                 }
 
-                if (currentPool.length < batch) { alert(t('alertLack',{n:currentPool.length})); pInput.classList.remove('hide-placeholder'); eInput.classList.remove('hide-placeholder'); return; }
+                if (currentPool.length < batch) { alert(t('alertLack',{n:currentPool.length})); if(pInput) pInput.classList.remove('hide-placeholder'); if(eInput) eInput.classList.remove('hide-placeholder'); return; }
 
                 document.querySelectorAll('.settings-grid input, .settings-grid textarea, .star, .upload-icon-btn, .btn-import, .preset-list').forEach(i => i.style.pointerEvents = 'none');
                 
-                isRunning = true; document.getElementById('controlBtn').innerHTML = t('btnStop'); document.getElementById('controlBtn').classList.add('stop'); 
+                isRunning = true; 
+                const cBtn = document.getElementById('controlBtn');
+                if(cBtn) {
+                    cBtn.innerHTML = t('btnStop'); 
+                    cBtn.classList.add('stop'); 
+                }
                 
-                if (rollingAudio.src && rollingAudio.src !== window.location.href) {
-                    rollingAudio.currentTime = 0;
-                    rollingAudio.play().catch(e => { console.warn('Rolling SFX prevented.'); });
+                if (isMusicPlaying) {
+                    if(audioEl) audioEl.pause();
+                    if(successAudio) successAudio.pause(); 
+                    if (rollingAudio && rollingAudio.src && rollingAudio.src !== window.location.href) {
+                        rollingAudio.currentTime = 0;
+                        rollingAudio.play().catch(e => { console.warn('Rolling SFX prevented.'); });
+                    }
                 }
 
                 let spanStyle = '';
@@ -2079,17 +2102,23 @@
                         let safeText = String(randItem).replace(/"/g, '&quot;');
                         temp += `<span style="${spanStyle}" title="${safeText}">${safeText}</span>`;
                     }
-                    document.getElementById('numberDisplay').innerHTML = temp;
+                    const nd = document.getElementById('numberDisplay');
+                    if(nd) nd.innerHTML = temp;
                 }, 40);
 
             } else {
                 isRunning = false; clearInterval(timer); 
                 isSettling = true; 
                 document.querySelectorAll('.settings-grid input, .settings-grid textarea, .star, .upload-icon-btn, .btn-import, .preset-list').forEach(i => i.style.pointerEvents = 'auto');
-                document.getElementById('controlBtn').innerHTML = t('btnStart'); document.getElementById('controlBtn').classList.remove('stop'); 
-                pInput.classList.remove('hide-placeholder'); eInput.classList.remove('hide-placeholder');
+                const cBtn = document.getElementById('controlBtn');
+                if(cBtn) {
+                    cBtn.innerHTML = t('btnStart'); 
+                    cBtn.classList.remove('stop'); 
+                }
+                if(pInput) pInput.classList.remove('hide-placeholder'); 
+                if(eInput) eInput.classList.remove('hide-placeholder');
 
-                rollingAudio.pause();
+                if (isMusicPlaying && rollingAudio) rollingAudio.pause();
 
                 const stats = getPoolStats();
                 const activeImgBase64 = currentImageBase64;
@@ -2107,7 +2136,10 @@
                 maxStrW = Math.max(3, Math.min(maxStrW, 8.5));
                 let spanStyle = `width: calc(${maxStrW}ch + 50px);`;
 
-                const batchCount = parseInt(document.getElementById('batchNum').value); const note = pInput.value.trim(); const stars = currentStars;
+                const bEl = document.getElementById('batchNum');
+                const batchCount = bEl ? parseInt(bEl.value) : 1; 
+                const note = pInput ? pInput.value.trim() : ''; 
+                const stars = currentStars;
                 
                 const hashArray = new Uint8Array(16); 
                 window.crypto.getRandomValues(hashArray); 
@@ -2119,10 +2151,13 @@
                 globalDrawnHistory.push(...finalResults);
                 const resultStr = finalResults.join(', ');
                 
-                document.getElementById('numberDisplay').innerHTML = finalResults.map(n => {
-                    let safeText = String(n).replace(/"/g, '&quot;');
-                    return `<span style="${spanStyle}" title="${safeText}">${safeText}</span>`;
-                }).join('');
+                const nd = document.getElementById('numberDisplay');
+                if(nd) {
+                    nd.innerHTML = finalResults.map(n => {
+                        let safeText = String(n).replace(/"/g, '&quot;');
+                        return `<span style="${spanStyle}" title="${safeText}">${safeText}</span>`;
+                    }).join('');
+                }
                 
                 let usedPresetId = null;
                 if(activePresetId) {
@@ -2161,15 +2196,23 @@
                     const li = document.createElement('li'); li.className = 'history-item'; li.id = `hist-row-${internalId}`;
                     li.title = hashTitle;
                     li.innerHTML = `<div class="item-col-left">${displayRound}</div><div class="item-col-middle"><div class="history-numbers">${resultStr}</div>${pDisp}<div class="pool-info">${poolInfoStr}</div></div><div class="item-col-right"><span>${dTime}</span><button class="invalid-btn" id="btn-invalid-${internalId}" onclick="toggleInvalidate(${internalId}, '${resultStr.replace(/'/g,"\\'").replace(/"/g,"&quot;")}')" title="${invalidateText}">${invalidateText}</button></div>`;
-                    document.getElementById('historyList').insertBefore(li, document.getElementById('historyList').firstChild);
+                    const hList = document.getElementById('historyList');
+                    if(hList) hList.insertBefore(li, hList.firstChild);
                     
                     updateLogButtonsLanguage(); 
                 });
 
                 setTimeout(() => {
-                    if (successAudio.src && successAudio.src !== window.location.href) {
+                    if (isMusicPlaying && successAudio && successAudio.src && successAudio.src !== window.location.href) {
                         successAudio.currentTime = 0;
-                        successAudio.play().catch(e => { console.warn('Success SFX prevented.'); });
+                        successAudio.play().then(() => {
+                            successAudio.onended = () => { resumeBGMWithFade(); successAudio.onended = null; };
+                        }).catch(e => { 
+                            console.warn('Success SFX prevented or missing.'); 
+                            resumeBGMWithFade(); 
+                        });
+                    } else {
+                        resumeBGMWithFade();
                     }
 
                     let pHtml = '';
@@ -2180,15 +2223,21 @@
                         let textPart = (note || stars > 0) ? `<div class="modal-prize-highlight-text">${nStr}&nbsp;&nbsp;<span style="font-size:1.1em;">${sStr}</span></div>` : '';
                         pHtml = `<div class="modal-prize-box">${imgHtml}${textPart}</div>`;
                     }
-                    document.getElementById('modalPrizeInfo').innerHTML = pHtml;
+                    const mpi = document.getElementById('modalPrizeInfo');
+                    if(mpi) mpi.innerHTML = pHtml;
                     
-                    document.getElementById('modalNumber').innerHTML = finalResults.map(n => {
-                        let safeText = String(n).replace(/"/g, '&quot;');
-                        return `<span style="${spanStyle}" title="${safeText}">${safeText}</span>`;
-                    }).join('');
+                    const mn = document.getElementById('modalNumber');
+                    if(mn) {
+                        mn.innerHTML = finalResults.map(n => {
+                            let safeText = String(n).replace(/"/g, '&quot;');
+                            return `<span style="${spanStyle}" title="${safeText}">${safeText}</span>`;
+                        }).join('');
+                    }
                     
-                    document.getElementById('resultModal').style.display = 'flex'; document.activeElement.blur(); 
-                    if (stars > 0) { const sh = document.getElementById('shakeContainer'); sh.classList.add('modal-epic-shake'); setTimeout(() => sh.classList.remove('modal-epic-shake'), 700); }
+                    const rm = document.getElementById('resultModal');
+                    if(rm) { rm.style.display = 'flex'; document.activeElement.blur(); }
+                    
+                    if (stars > 0) { const sh = document.getElementById('shakeContainer'); if(sh){ sh.classList.add('modal-epic-shake'); setTimeout(() => sh.classList.remove('modal-epic-shake'), 700); } }
                     if (stars === 5) fireConfettiEngine();
                     
                     isSettling = false; 
@@ -2197,15 +2246,189 @@
             }
         }
 
-        function closeResultModal() { document.getElementById('resultModal').style.display = 'none'; }
-        function closePoolModal() { document.getElementById('poolModal').style.display = 'none'; }
+        // ================= 15. 审计日志、作废恢复与导出 =================
+        function resetPoolWithPrompt() {
+            if (isRunning) return;
+            if (!confirm(t('alertReset'))) return;
+
+            const exc = document.getElementById('excludeNum');
+            if(exc) exc.value = '';
+            lastExclude = '';
+
+            performSilentReset();
+            const stats = getPoolStats();
+            addSystemRecord(t('logReset', {rem: stats.remaining, tot: stats.total}));
+            saveState();
+        }
+
+        window.toggleInvalidate = function(internalId, rawNums) {
+            let logEntry = globalAuditLogs.find(l => l.internalId === internalId);
+            if (!logEntry) return;
+
+            let nums = [];
+            let numsStr = '';
+            if (Array.isArray(rawNums)) {
+                nums = isCustomPool ? rawNums.map(String) : rawNums.map(n => parseInt(n, 10));
+                numsStr = nums.join(', ');
+            } else if (typeof rawNums === 'string') {
+                nums = isCustomPool ? rawNums.split(',').map(n => n.trim()) : rawNums.split(',').map(n => parseInt(n.trim(), 10));
+                numsStr = rawNums;
+            } else if (typeof rawNums === 'number') {
+                nums = [isCustomPool ? String(rawNums) : rawNums];
+                numsStr = String(rawNums);
+            }
+
+            if (!logEntry.invalidated) {
+                if (!confirm(t('invalidateConfirm'))) return;
+                nums.forEach(n => { const idx = globalDrawnHistory.indexOf(n); if(idx > -1) globalDrawnHistory.splice(idx, 1); });
+                logEntry.invalidated = true;
+
+                if (logEntry.presetId) {
+                    let p = presets.find(x => x.id === logEntry.presetId);
+                    if (p) {
+                        p.drawn = false;
+                        if (activePresetId !== p.id) {
+                            if (activePresetId) {
+                                checkAndSaveActivePreset();
+                            } else {
+                                const pn = document.getElementById('prizeNote');
+                                const bn = document.getElementById('batchNum');
+                                prePresetState = {
+                                    note: pn ? pn.value.trim() : '',
+                                    batch: bn ? bn.value : 1,
+                                    stars: currentStars,
+                                    image: currentImageBase64
+                                };
+                            }
+                            loadPreset(p.id);
+                        } else {
+                            renderPresets();
+                        }
+                    }
+                }
+
+                const row = document.getElementById('hist-row-' + internalId); if (row) row.classList.add('invalidated');
+                const btn = document.getElementById('btn-invalid-' + internalId);
+                if (btn) { btn.innerText = currentLang === 'zh' ? '恢复' : 'Restore'; btn.classList.add('restore-btn'); btn.title = currentLang === 'zh' ? '恢复' : 'Restore'; }
+
+                updateStatsBoard(); addSystemRecord(t('logInvalidated', {n: logEntry.round.replace('Round ',''), nums: numsStr})); saveState();
+            } else {
+                if (!confirm(t('restoreConfirm'))) return;
+                globalDrawnHistory.push(...nums);
+                logEntry.invalidated = false;
+
+                if (logEntry.presetId) {
+                    let p = presets.find(x => x.id === logEntry.presetId);
+                    if (p) {
+                        p.drawn = true;
+                        if (activePresetId === p.id) {
+                            activePresetId = null;
+                            rollbackToPrePresetState();
+                        }
+                        renderPresets();
+                    }
+                }
+
+                const row = document.getElementById('hist-row-' + internalId); if (row) row.classList.remove('invalidated');
+                const btn = document.getElementById('btn-invalid-' + internalId);
+                if (btn) { btn.innerText = currentLang === 'zh' ? '作废' : 'Invalidate'; btn.classList.remove('restore-btn'); btn.title = currentLang === 'zh' ? '作废' : 'Invalidate'; }
+
+                updateStatsBoard(); addSystemRecord(t('logRestored', {n: logEntry.round.replace('Round ',''), nums: numsStr})); saveState();
+            }
+        };
+
+        window.cancelExclusion = function(internalId, itemStr) {
+            if (isRunning) return;
+            let logEntry = globalAuditLogs.find(l => l.internalId === internalId);
+            if (!logEntry || logEntry.invalidated) return;
+
+            if (isCustomPool) {
+                const idx = customPoolExcluded.indexOf(String(itemStr));
+                if (idx > -1) customPoolExcluded.splice(idx, 1);
+            }
+
+            logEntry.invalidated = true;
+
+            const row = document.getElementById('hist-row-' + internalId);
+            if (row) row.classList.add('invalidated');
+
+            const btn = document.getElementById('btn-cancel-' + internalId);
+            if (btn) btn.style.display = 'none';
+
+            updateStatsBoard();
+            saveState();
+        };
+
+        window.removeCandidateFromPreview = function(item) {
+            if (isCustomPool) {
+                if (!customPoolExcluded.includes(String(item))) {
+                    customPoolExcluded.push(String(item));
+                    updateStatsBoard();
+                    const stats = getPoolStats();
+                    const internalId = Date.now() + Math.floor(Math.random() * 10000);
+                    const timeStr = updateClock();
+                    const msg = currentLang === 'zh' ?
+                        `[透视管理] 从号池手动剔除: ${item}` :
+                        `[Preview] Excluded manually: ${item}`;
+
+                    globalAuditLogs.push({ internalId: internalId, time: timeStr, type: 'Conf', round: '-', content: msg, prize: '-', stars: '-', poolInfo: `${stats.remaining}/${stats.total}`, image: null, invalidated: false, excludedItem: String(item) });
+
+                    const cancelText = currentLang === 'zh' ? '取消' : 'Cancel';
+                    const li = document.createElement('li');
+                    li.className = 'history-item';
+                    li.id = `hist-row-${internalId}`;
+                    li.style.cssText = "background:var(--conf-log-bg); border-radius:8px; padding:10px 5px; margin-top:5px;";
+                    li.innerHTML = `
+                        <div class="item-col-left" style="color:#38a169;font-size:14px;padding-left:10px;">[${t('conf')}]</div>
+                        <div class="item-col-middle" style="align-items:flex-end; min-width:0;">
+                            <div class="exclude-log-text" style="color:#2f855a;font-size:14px;text-align:right; word-break: break-all; white-space: normal; line-height: 1.5;">${msg}</div>
+                            <div class="pool-info">(余量: ${stats.remaining})</div>
+                        </div>
+                        <div class="item-col-right" style="padding-right:10px;">
+                            <span>${timeStr.replace(' ','<br>')}</span>
+                            <button class="invalid-btn" id="btn-cancel-${internalId}" onclick="cancelExclusion(${internalId}, '${String(item).replace(/'/g, "\\'")}')" title="${cancelText}">${cancelText}</button>
+                        </div>`;
+
+                    const hList = document.getElementById('historyList');
+                    if(hList) hList.insertBefore(li, hList.firstChild);
+
+                    saveState();
+                    const nd = document.getElementById('numberDisplay');
+                    if(nd) nd.dispatchEvent(new Event('dblclick'));
+                }
+            } else {
+                const excludeEl = document.getElementById('excludeNum');
+                let currentExcludes = excludeEl ? excludeEl.value.split(/[,，]/).map(s => s.trim()).filter(s => s !== '') : [];
+
+                if(!currentExcludes.includes(String(item))) {
+                    currentExcludes.push(String(item));
+                    if(excludeEl) excludeEl.value = currentExcludes.join(', ');
+                    lastExclude = excludeEl ? excludeEl.value : '';
+
+                    updateStatsBoard();
+                    const stats = getPoolStats();
+
+                    addSettingRecord(currentLang === 'zh' ?
+                        `[透视管理] 从号池手动剔除: ${item} (余量: ${stats.remaining})` :
+                        `[Preview] Excluded manually: ${item} (Rem: ${stats.remaining})`);
+
+                    saveState();
+                    const nd = document.getElementById('numberDisplay');
+                    if(nd) nd.dispatchEvent(new Event('dblclick'));
+                }
+            }
+        };
+
+        function closeResultModal() { const m = document.getElementById('resultModal'); if(m) m.style.display = 'none'; }
+        function closePoolModal() { const m = document.getElementById('poolModal'); if(m) m.style.display = 'none'; }
 
         function addSystemRecord(msg) {
             const e = document.getElementById('emptyHint'); if(e) e.remove(); const timeStr = updateClock();
             globalAuditLogs.push({ internalId: null, time: timeStr, type: 'Sys', round: '-', content: msg, prize: '-', stars: '-', poolInfo: '-', image: null, invalidated: false });
             const li = document.createElement('li'); li.className = 'history-item'; li.style.cssText = "background:var(--sys-log-bg); border-radius:8px; padding:10px 5px; margin-top:5px;";
             li.innerHTML = `<div class="item-col-left" style="color:#3182ce;font-size:14px;padding-left:10px;">[${t('sys')}]</div><div class="item-col-middle" style="align-items:flex-end; min-width:0;"><div style="color:#2b6cb0;font-size:14px;text-align:right; word-break: break-all; white-space: normal; line-height: 1.5;">${msg}</div></div><div class="item-col-right" style="padding-right:10px;">${timeStr.replace(' ','<br>')}</div>`;
-            document.getElementById('historyList').insertBefore(li, document.getElementById('historyList').firstChild);
+            const hList = document.getElementById('historyList');
+            if(hList) hList.insertBefore(li, hList.firstChild);
         }
 
         function addSettingRecord(msg) {
@@ -2213,7 +2436,8 @@
             globalAuditLogs.push({ internalId: null, time: timeStr, type: 'Conf', round: '-', content: msg, prize: '-', stars: '-', poolInfo: '-', image: null, invalidated: false });
             const li = document.createElement('li'); li.className = 'history-item'; li.style.cssText = "background:var(--conf-log-bg); border-radius:8px; padding:10px 5px; margin-top:5px;";
             li.innerHTML = `<div class="item-col-left" style="color:#38a169;font-size:14px;padding-left:10px;">[${t('conf')}]</div><div class="item-col-middle" style="align-items:flex-end; min-width:0;"><div style="color:#2f855a;font-size:14px;text-align:right; word-break: break-all; white-space: normal; line-height: 1.5;">${msg}</div></div><div class="item-col-right" style="padding-right:10px;">${timeStr.replace(' ','<br>')}</div>`;
-            document.getElementById('historyList').insertBefore(li, document.getElementById('historyList').firstChild);
+            const hList = document.getElementById('historyList');
+            if(hList) hList.insertBefore(li, hList.firstChild);
         }
 
         function addYellowRecord(msg) {
@@ -2221,10 +2445,10 @@
             globalAuditLogs.push({ internalId: null, time: timeStr, type: 'Tip', round: '-', content: msg, prize: '-', stars: '-', poolInfo: '-', image: null, invalidated: false });
             const li = document.createElement('li'); li.className = 'history-item'; li.style.cssText = "background:var(--tip-log-bg); border-radius:8px; padding:10px 5px; margin-top:5px;";
             li.innerHTML = `<div class="item-col-left" style="color:#d97706;font-size:14px;padding-left:10px;">[${t('tip')}]</div><div class="item-col-middle" style="align-items:flex-end; min-width:0;"><div style="color:#b45309;font-size:14px;text-align:right; font-weight: bold; word-break: break-all; white-space: normal; line-height: 1.5;">${msg}</div></div><div class="item-col-right" style="padding-right:10px;">${timeStr.replace(' ','<br>')}</div>`;
-            document.getElementById('historyList').insertBefore(li, document.getElementById('historyList').firstChild);
+            const hList = document.getElementById('historyList');
+            if(hList) hList.insertBefore(li, hList.firstChild);
         }
 
-        // 💡 修复 5：CSV 导出彻底规避日期污染
         function exportFormattedLogs() {
             if (globalAuditLogs.length === 0) return alert("No data!");
             const now = new Date();
@@ -2238,7 +2462,7 @@
             globalAuditLogs.forEach(r => {
                 let safeContent = r.invalidated ? `[作废/Void] ${r.content}` : r.content;
                 let status = r.invalidated ? "Invalidated" : "Valid";
-                let safePoolInfo = `="${r.poolInfo}"`; // 强制 Excel 识别为文本，杜绝日期格式错误
+                let safePoolInfo = `="${r.poolInfo}"`; 
                 let safeHash = r.seedHash ? `"${r.seedHash}"` : "";
                 csv += `${r.time},${r.type},${r.round},"${safeContent.replace(/"/g,'""')}","${r.prize.replace(/"/g,'""')}",${r.stars},${safePoolInfo},${status},${safeHash}\n`;
             });
@@ -2342,7 +2566,7 @@
                 for(let i=0; i<r.leftLines.length; i++) { ctx.fillText(r.leftLines[i], padding * 2 + 40, textY); textY += 45; }
                 if(r.hasStars) { ctx.fillText(r.stars, padding * 2 + 40, textY); }
 
-                ctx.fillStyle = '#f87171'; ctx.font = 'bold 48px Consolas'; ctx.textAlign = 'right'; 
+                ctx.fillStyle = '#d4af37'; ctx.font = 'bold 48px Consolas'; ctx.textAlign = 'right'; 
                 let lineStartY = itemDrawY + (r.itemHeight - r.renderLines.length * 60) / 2 + 45;
                 let rightBaseX = 1170 - padding * 2 - 40 - (r.image ? 160 : 0);
                 for (let i = 0; i < r.renderLines.length; i++) { ctx.fillText(r.renderLines[i], rightBaseX, lineStartY + i * 60); }
