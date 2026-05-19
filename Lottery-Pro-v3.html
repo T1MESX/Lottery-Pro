@@ -1155,7 +1155,8 @@
             const prizeArea = document.getElementById('prizeInputWrap'); 
             const displayArea = document.getElementById('numberDisplay');
             const importBtn = document.getElementById('importBtnUI');
-            const musicBtn = document.getElementById('loadMusicBtn'); 
+            const musicBtn = document.getElementById('loadMusicBtn');
+            const importStateBtn = document.getElementById('btnImportState');
 
             if(prizeArea) {
                 prizeArea.addEventListener('dragover', e => { e.preventDefault(); prizeArea.classList.add('drag-active'); });
@@ -1186,6 +1187,22 @@
                         if(lBgm) { lBgm.files = dt.files; lBgm.dispatchEvent(new Event('change')); }
                     } else {
                         alert(currentLang === 'zh' ? '格式错误！仅支持 .mp3 或 .flac' : 'Invalid format! Only .mp3 or .flac supported.');
+                    }
+                });
+            }
+
+            if(importStateBtn) {
+                importStateBtn.addEventListener('dragover', e => { e.preventDefault(); importStateBtn.classList.add('drag-active'); });
+                importStateBtn.addEventListener('dragleave', e => { e.preventDefault(); importStateBtn.classList.remove('drag-active'); });
+                importStateBtn.addEventListener('drop', e => {
+                    e.preventDefault(); importStateBtn.classList.remove('drag-active');
+                    const file = e.dataTransfer.files[0];
+                    if(file && file.name.toLowerCase().endsWith('.json')) {
+                        const dt = new DataTransfer(); dt.items.add(file);
+                        const iState = document.getElementById('importStateInput');
+                        if(iState) { iState.files = dt.files; iState.dispatchEvent(new Event('change')); }
+                    } else {
+                        alert(currentLang === 'zh' ? '格式错误！仅支持 .json 状态快照文件。' : 'Invalid format! Only .json state files are supported.');
                     }
                 });
             }
