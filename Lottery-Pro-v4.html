@@ -174,7 +174,7 @@
             
             /* 💡 核心修改：后台控制区同步升级为 Grid 两列排布 */
             display: grid !important;
-            grid-template-columns: repeat(2, max-content);
+            grid-template-columns: repeat(2, minmax(0, max-content));
             justify-content: center;
             align-content: center;
             gap: 12px 30px; /* 适当缩窄后台的间距 */
@@ -308,28 +308,54 @@
         .footer-copyright { margin-top: 25px; font-size: 12px; color: var(--text-light); text-align: center; letter-spacing: 1px; opacity: 0.8; transition: var(--theme-transition);}
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); transition: background 0.4s ease;}
-        .modal-content { background: var(--modal-card); padding: 50px 60px; border-radius: 20px; text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 80%; box-shadow: 0 25px 50px rgba(0,0,0,0.5); transition: var(--theme-transition);}
+        .modal-content { 
+            background: var(--modal-card); padding: 50px 60px; border-radius: 20px; text-align: center; 
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            max-width: 80%; box-shadow: 0 25px 50px rgba(0,0,0,0.5); transition: var(--theme-transition);
+            /* 💡 修复1：整体最大高度锁定为屏幕 90%，开启 Flex 弹性盒防撑爆 */
+            max-height: 90vh; 
+            display: flex; 
+            flex-direction: column;
+            box-sizing: border-box;
+        }
         @keyframes popIn { from { transform: scale(0.8) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
         
-        #shakeContainer { transform-origin: center; display: flex; flex-direction: column; align-items: center;}
+        #shakeContainer { 
+            transform-origin: center; display: flex; flex-direction: column; align-items: center;
+            /* 💡 修复2：限制内部震动容器跟随挤压，防止溢出 */
+            overflow: hidden; 
+            width: 100%;
+        }
         @keyframes epicShake { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 10% { transform: translate(-8px, -8px) rotate(-3deg); } 20% { transform: translate(8px, 6px) rotate(3deg); } 30% { transform: translate(-6px, 8px) rotate(-2deg); } 40% { transform: translate(6px, -6px) rotate(2deg); } 50% { transform: translate(-4px, -4px) rotate(-1deg); } 60% { transform: translate(4px, 4px) rotate(1deg); } 70% { transform: translate(-2px, -2px) rotate(0deg); } 80% { transform: translate(2px, 2px) rotate(0deg); } }
         .modal-epic-shake { animation: epicShake 0.65s cubic-bezier(.36,.07,.19,.97) both; }
 
-        .modal h2 { color: var(--display-border); margin: 0 0 20px 0; font-size: 36px; transition: var(--theme-transition);}
-        .modal-prize-box { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-bottom: 25px; width: 100%; justify-content: center; }
+        .modal h2 { color: var(--display-border); margin: 0 0 20px 0; font-size: 36px; transition: var(--theme-transition); flex-shrink: 0; }
+        .modal-prize-box { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-bottom: 25px; width: 100%; justify-content: center; flex-shrink: 0; }
         .modal-prize-highlight-text { background: var(--prize-log-bg); border: 2px dashed var(--prize-log-border); border-radius: 12px; padding: 10px 25px; color: var(--highlight-text); font-size: 22px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: var(--theme-transition);}
         .modal-prize-img-preview { max-height: 280px; max-width: 100%; object-fit: scale-down; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: 3px solid var(--border-color); background: var(--input-bg); }
         
-        /* 💡 修复：改回 Flex 弹性布局，确保单数/多行时尾部元素绝对居中 */
         .modal-number { 
             color: var(--lucky-text); font-weight: bold; 
-            margin: 0 auto 40px auto; max-width: 800px; line-height: 1.2; 
-            display: flex !important; /* 放弃 Grid，改用 Flex */
-            flex-wrap: wrap;          /* 允许自动换行 */
-            justify-content: center;  /* 整体与每一行都绝对居中 */
+            margin: 0 auto 30px auto; max-width: 800px; line-height: 1.2; 
+            display: flex !important; 
+            flex-wrap: wrap; 
+            justify-content: center; 
             align-items: center;
+            align-content: flex-start; /* 💡 保证滚动时第一行始终贴顶，不跑偏 */
             gap: 15px 30px; 
+            
+            /* 💡 修复4：最核心的内滚动护盾 */
+            overflow-y: auto; /* 超量自动出现滚动条 */
+            overflow-x: hidden;
+            width: 100%;
+            min-height: 0; /* 💡 打破 Flex 默认封印，允许区域缩小 */
+            padding: 10px; /* 给滚动条预留呼吸空间 */
         }
+        
+        /* 💡 给弹窗加上高颜值的定制滚动条 */
+        .modal-number::-webkit-scrollbar { width: 8px; }
+        .modal-number::-webkit-scrollbar-track { background: transparent; }
+        .modal-number::-webkit-scrollbar-thumb { background-color: var(--lucky-text); border-radius: 10px; }
         .modal-number span { 
             background: var(--input-bg); border: 2px solid var(--lucky-text); 
             border-radius: 12px; padding: 5px 15px; transition: var(--theme-transition); 
@@ -340,7 +366,7 @@
             text-align: center; /* 确保框内文字也居中 */
         }
         
-        .close-btn { padding: 15px 40px; font-size: 18px; font-weight: bold; background: #3182ce; color: white; border: none; border-radius: 10px; cursor: pointer; transition: background 0.3s; }
+        .close-btn { padding: 15px 40px; font-size: 18px; font-weight: bold; background: #3182ce; color: white; border: none; border-radius: 10px; cursor: pointer; transition: background 0.3s; flex-shrink: 0; margin-top: auto; }
         .close-btn:hover { background: #2b6cb0; }
 
         #poolModal .modal-content { max-width: 900px; width: 85%; padding: 40px 50px; }
@@ -387,7 +413,7 @@
             border-width: 4px; background: rgba(255,255,255,0.05); 
             
             display: grid !important; 
-            grid-template-columns: repeat(2, max-content); /* 严丝合缝地锁定为 2 列 */
+            grid-template-columns: repeat(2, minmax(0, max-content)); /* 严丝合缝地锁定为 2 列 */
             justify-content: center; align-content: center; 
             gap: 25px 50px;
             
@@ -397,7 +423,7 @@
             
             /* 设定安全边界值：默认汉字时不小于 600px，最长工号时不大于 1100px */
             min-width: 600px;
-            max-width: 1100px;
+            max-width: 1400px;
         }
         [data-theme="dark"] .screen-mode .display { background: rgba(0,0,0,0.2); }
         
@@ -422,10 +448,11 @@
         /* 💡 专属新增：等比例强力放大观众大屏的中奖弹窗整体视觉 */
         .screen-mode #resultModal .modal-content {
             padding: 70px 90px !important;    
-            max-width: 95% !important;        /* 从 90% 放宽到 95% */
-            width: 1200px !important;         /* 强制拉宽 */
+            max-width: 95% !important;        
+            width: 1200px !important;         
             border: 3px solid var(--lucky-text);
-            white-space: nowrap !important;   /* 💡 新增：防挤压换行锁 */
+            white-space: nowrap !important;   
+            max-height: 90vh !important; /* 💡 大屏同样锁死最大高度 */
         }
 
         .screen-mode #resultModal h2 {
@@ -482,7 +509,7 @@
     <div class="top-controls" id="topNavArea">
         <a class="top-btn" href="https://github.com/T1MESX/Lottery-Pro" target="_blank" title="GitHub Repository" id="navGithub">
             <svg height="18" viewBox="0 0 16 16" width="18" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-            <span id="versionText">v4.1.0</span>
+            <span id="versionText">v4.2.0</span>
         </a>
         <span class="nav-sep">|</span>
         <span class="top-btn" id="btnExportState" onclick="exportState()">
@@ -798,7 +825,7 @@
     <script>
         // ================= 8. 全局统一配置 =================
         const SYS_CONFIG = {
-            version: "v4.1.0",
+            version: "v4.2.0",
             tag: "", 
             
             imageCompression: {
@@ -1120,6 +1147,7 @@
             const nd = document.getElementById('numberDisplay');
             if(nd && !isRunning) {
                 nd.innerHTML = `<span style="font-size:clamp(30px, 4vw, 50px); border:none; box-shadow:none; background:transparent; color:var(--text-muted); padding:0;">${currentLang === 'zh' ? '等待开始...' : 'Waiting to start...'}</span>`;
+                nd.style.gridTemplateColumns = ''; // 💡 同步大屏的列数清除
             }
         }
 
@@ -2295,7 +2323,10 @@
             globalDrawnHistory = []; 
             drawCount = 0; 
             const nd = document.getElementById('numberDisplay');
-            if(nd) nd.innerHTML = `<span style="grid-column: 1 / -1; background: transparent; box-shadow: none; border: none; font-size: 100px; color: var(--text-light);">?</span>`;
+            if(nd) {
+                nd.innerHTML = `<span style="grid-column: 1 / -1; background: transparent; box-shadow: none; border: none; font-size: 100px; color: var(--text-light);">?</span>`;
+                nd.style.gridTemplateColumns = ''; // 💡 清除列数锁定
+            }
             if(isScreenMode) updateWaitingText(); // 💡 双屏待机同步
             updateStatsBoard(); 
         }
@@ -2411,21 +2442,48 @@
                     }
                 }
 
-                let spanStyle = '';
                 let maxStrW = 0;
                 if (isCustomPool) {
                     currentPool.forEach(item => {
                         let str = String(item); let w = 0;
-                        for(let i=0; i<str.length; i++) { w += str.charCodeAt(i) > 255 ? 2.1 : 1.1; }
+                        for(let i=0; i<str.length; i++) { w += str.charCodeAt(i) > 255 ? 2.2 : 1.4; }
                         if(w > maxStrW) maxStrW = w;
                     });
                 } else {
-                    maxStrW = String(stats.max).length * 1.1;
+                    maxStrW = String(stats.max).length * 1.4;
                 }
-                maxStrW = Math.max(3, Math.min(maxStrW, 15));
-                spanStyle = `width: calc(${maxStrW}ch + 50px);`;
+
+                maxStrW = Math.max(3, Math.min(maxStrW, 22));
+                let spanStyle = `width: calc(${maxStrW}ch + 90px);`;
+
+                // 💡智能网格列数计算引擎，彻底解决左右空白，防抖+自适应！
+                let optimalCols = 1;
+                if (batch === 1) optimalCols = 1;
+                else if (batch === 2) optimalCols = 2;
+                else if (batch === 3) optimalCols = 3;
+                else if (batch === 4) optimalCols = 2; // 4人排 2x2 矩阵最美观
+                else if (batch === 5) optimalCols = 5; 
+                else if (batch === 6) optimalCols = 3; // 6人排 3x2 矩阵
+                else if (batch === 7 || batch === 8) optimalCols = 4;
+                else if (batch === 9 || batch === 10) optimalCols = 5; // 10个人排 5x2 矩阵，完美利用屏幕
+                else if (batch >= 11 && batch <= 12) optimalCols = 4;
+                else optimalCols = 5; // 大于12人，保底5列铺开
+
+                // 物理屏幕防爆：如果检测到是长工号，强制降维，强行缩减列数防止撑爆屏幕
+                if (maxStrW >= 12) optimalCols = Math.min(optimalCols, 2); 
+                else if (maxStrW >= 8) optimalCols = Math.min(optimalCols, 3);
+                else if (maxStrW >= 5) optimalCols = Math.min(optimalCols, 4);
+                else optimalCols = Math.min(optimalCols, 6);
+
+                if (batch < optimalCols) optimalCols = batch;
+
+                // 将计算好的矩阵列数硬编码注入给控制台，物理锁死
+                const nd = document.getElementById('numberDisplay');
+                // 💡 修复：控制台永远最高只排 2 列，且通过 minmax 弹性收缩防止撑爆虚线框
+                const consoleCols = Math.min(optimalCols, 2);
+                if (nd) nd.style.gridTemplateColumns = `repeat(${consoleCols}, minmax(0, max-content))`;
                 
-                sendSignal('START_ROLL', { spanStyle, pool: currentPool, batch: batch });
+                sendSignal('START_ROLL', { spanStyle, pool: currentPool, batch: batch, gridCols: optimalCols });
 
                 timer = setInterval(() => {
                     let temp = ''; 
@@ -2459,14 +2517,14 @@
                 if (isCustomPool) {
                     currentPool.forEach(item => {
                         let str = String(item); let w = 0;
-                        for(let i=0; i<str.length; i++) w += str.charCodeAt(i) > 255 ? 2.1 : 1.1;
+                        for(let i=0; i<str.length; i++) w += str.charCodeAt(i) > 255 ? 2.2 : 1.4;
                         if(w > maxStrW) maxStrW = w;
                     });
                 } else {
-                    maxStrW = String(stats.max).length * 1.1;
+                    maxStrW = String(stats.max).length * 1.4;
                 }
-                maxStrW = Math.max(3, Math.min(maxStrW, 15));
-                let spanStyle = `width: calc(${maxStrW}ch + 50px);`;
+                maxStrW = Math.max(3, Math.min(maxStrW, 22));
+                let spanStyle = `width: calc(${maxStrW}ch + 90px);`;
 
                 const bEl = document.getElementById('batchNum');
                 const batchCount = bEl ? parseInt(bEl.value) : 1; 
@@ -2588,7 +2646,10 @@
             if(m) m.style.display = 'none'; 
             
             const nd = document.getElementById('numberDisplay');
-            if(nd) nd.innerHTML = "?"; 
+            if(nd) {
+                nd.innerHTML = `<span style="grid-column: 1 / -1; background: transparent; box-shadow: none; border: none; font-size: 100px; color: var(--text-light);">?</span>`; 
+                nd.style.gridTemplateColumns = ''; // 💡 清除列数锁定
+            }
             if(isScreenMode) {
                 updateWaitingText(); // 让大屏变回等待抽奖
             }
@@ -3051,8 +3112,13 @@
                     const im = document.getElementById('imageModal');
                     if(im) im.style.display = 'none';
                     
-                    const { spanStyle, pool, batch } = payload;
+                    const { spanStyle, pool, batch, gridCols } = payload;
+                    const ndStart = document.getElementById('numberDisplay');
+                    // 💡大屏同步接收列数指令并强制锁定网格
+                    if(ndStart && gridCols) ndStart.style.gridTemplateColumns = `repeat(${gridCols}, max-content)`;
+                    
                     if(screenRollTimer) clearInterval(screenRollTimer);
+
                     screenRollTimer = setInterval(() => {
                         let temp = '';
                         for(let i=0; i<batch; i++) {
