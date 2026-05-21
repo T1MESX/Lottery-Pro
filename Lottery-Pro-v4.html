@@ -6,7 +6,7 @@
     <title>Lottery Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        /* ================= 核心 CSS 变量系统 ================= */
+        /* ================= 1. 核心 CSS 变量与基础系统 ================= */
         :root {
             --bg-body: linear-gradient(135deg, #f4f7f6 0%, #e2e8f0 100%);
             --bg-panel: rgba(255, 255, 255, 0.95);
@@ -73,6 +73,7 @@
         body.en .lang-zh { display: none !important; }
         body.zh .lang-en { display: none !important; }
 
+        /* ================= 2. 音量控制条系统 ================= */
         .vol-control-wrap { position: relative; display: inline-flex; align-items: center; height: 100%; }
         .vol-bubble { 
             position: absolute; top: calc(100% + 12px); left: 50%; transform: translateX(-50%) translateY(10px); 
@@ -81,23 +82,18 @@
             opacity: 0; visibility: hidden; transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); 
             z-index: 200; display: flex; flex-direction: column; gap: 5px;
         }
-        .vol-bubble::before { 
-            content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); 
-            border-width: 0 6px 6px 6px; border-style: solid; 
-            border-color: transparent transparent var(--bg-panel) transparent; 
-        }
+        .vol-bubble::before { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); border-width: 0 6px 6px 6px; border-style: solid; border-color: transparent transparent var(--bg-panel) transparent; }
         .vol-control-wrap::after { content: ''; position: absolute; top: 100%; left: 0; width: 100%; height: 15px; background: transparent; }
         .vol-control-wrap:hover .vol-bubble { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
-        
-        .vol-track-name-box { width: 110px; overflow: hidden; height: 16px; position: relative; }
-        .vol-track-name { font-size: 11px; color: var(--text-muted); white-space: nowrap; position: absolute; left: 50%; transform: translateX(-50%); }
+        .vol-track-name-box { width: 110px; overflow: hidden; height: 20px; position: relative; }
+        .vol-track-name { font-size: 13px; font-weight: bold; color: var(--text-muted); white-space: nowrap; position: absolute; left: 50%; transform: translateX(-50%); }
         .vol-track-name.marquee-text { left: 100%; transform: none; animation: scrollText 5s linear infinite; }
         @keyframes scrollText { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-
         .vol-slider { width: 80px; height: 4px; -webkit-appearance: none; background: var(--border-color); border-radius: 2px; outline: none; cursor: pointer; transition: var(--theme-transition); }
         .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #3498db; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; }
         .vol-slider::-webkit-slider-thumb:hover { transform: scale(1.3); background: #2980b9; }
 
+        /* ================= 3. 布局与控制台系统 ================= */
         .main-wrapper { display: flex; flex-direction: row; gap: 30px; justify-content: center; max-width: 1400px; width: 100%; align-items: stretch; margin-top: 20px;}
         .panel { background: var(--bg-panel); padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px var(--shadow-base), 0 5px 15px var(--shadow-base); box-sizing: border-box; transition: var(--theme-transition); border: 1px solid var(--border-color);}
         .lottery-panel { flex: 1.618; min-width: 450px; display: flex; flex-direction: column; position: relative;}
@@ -118,7 +114,6 @@
         h1 { margin-top: 0; font-size: 32px; color: var(--text-main); margin-bottom: 8px; letter-spacing: 2px; transition: var(--theme-transition);}
         .subtitle { font-size: 18px; color: var(--text-muted); margin-top: 0; margin-bottom: 25px; font-weight: 500; transition: var(--theme-transition);}
         .hint { font-size: 14px; color: var(--text-muted); margin-bottom: 30px; transition: var(--theme-transition);}
-
         .panel-header-wrapper { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; transition: var(--theme-transition); flex-shrink: 0;}
         .panel-header-wrapper h3 { margin: 0; font-size: 20px; color: var(--text-main); transition: var(--theme-transition);}
         .sys-clock { font-family: 'Consolas', 'Courier New', monospace; font-size: 14px; color: var(--text-muted); background: var(--input-bg); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-weight: bold; transition: var(--theme-transition);}
@@ -126,20 +121,23 @@
         .settings-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 25px; margin-bottom: 30px; text-align: left; position: relative;}
         .setting-item { display: flex; flex-direction: column; width: 100%; position: relative;}
         .setting-item.full-width { grid-column: 1 / -1; }
-        
         .flex-row-setting { display: flex; flex-direction: row; gap: 25px; align-items: flex-start; }
         .flex-1-setting { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative;} 
         .star-setting-col { display: flex; flex-direction: column; flex-shrink: 0; }
-
         .drag-active { position: relative; }
         .drag-active::after { content: ''; position: absolute; inset: -4px; border: 3px dashed #3498db; background: rgba(52, 152, 219, 0.15); border-radius: 12px; z-index: 99; pointer-events: none; }
 
         label { font-size: 15px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; transition: var(--theme-transition);}
-        
-        input[type="number"], input[type="text"] { width: 100%; box-sizing: border-box; padding: 12px 15px; border: 2px solid var(--border-color); border-radius: 10px; outline: none; font-size: 16px; transition: var(--theme-transition); background-color: var(--input-bg); color: var(--text-main); font-family: inherit; height: 50px; }
+        input[type="number"], input[type="text"], textarea.scrollable-input { width: 100%; box-sizing: border-box; padding: 12px 15px; border: 2px solid var(--border-color); border-radius: 10px; outline: none; font-size: 16px; transition: var(--theme-transition); background-color: var(--input-bg); color: var(--text-main); font-family: inherit;}
+        input[type="number"], input[type="text"] { height: 50px; }
+        textarea.scrollable-input { white-space: nowrap; overflow-x: auto; overflow-y: hidden; resize: none; height: 50px; line-height: 22px; padding-bottom: 8px; }
         input:focus, textarea.scrollable-input:focus { border-color: #3498db; background-color: var(--bg-panel); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); }
         input:disabled, textarea:disabled { opacity: 0.45; cursor: not-allowed; background-color: var(--border-color); }
-        
+        textarea.scrollable-input::-webkit-scrollbar { height: 8px; }
+        textarea.scrollable-input::-webkit-scrollbar-thumb { background-color: var(--text-light); border-radius: 4px; }
+        input::placeholder, textarea.scrollable-input::placeholder { color: #a0aec0 !important; opacity: 0.6 !important; font-weight: 400 !important; transition: opacity 0.3s ease;}
+        .hide-placeholder::placeholder { opacity: 0 !important; color: transparent !important; }
+
         .input-with-icon { position: relative; display: flex; align-items: center; width: 100%; border-radius: 10px; }
         .input-with-icon input[type="text"] { padding-right: 55px; } 
         .upload-icon-btn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px; color: var(--text-light); background: transparent; cursor: pointer; transition: all 0.2s ease; }
@@ -153,14 +151,6 @@
         .delete-img-btn { position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; background: #e74c3c; color: white; border: none; border-radius: 50%; font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.1s, background 0.2s; z-index: 10;}
         .delete-img-btn:hover { background: #c0392b; transform: scale(1.15); }
 
-        textarea.scrollable-input { width: 100%; box-sizing: border-box; padding: 12px 15px; border: 2px solid var(--border-color); border-radius: 10px; outline: none; font-size: 16px; transition: var(--theme-transition); background-color: var(--input-bg); color: var(--text-main); font-family: inherit; white-space: nowrap; overflow-x: auto; overflow-y: hidden; resize: none; height: 50px; line-height: 22px; padding-bottom: 8px; }
-        textarea.scrollable-input::-webkit-scrollbar { height: 8px; }
-        textarea.scrollable-input::-webkit-scrollbar-thumb { background-color: var(--text-light); border-radius: 4px; }
-        
-        input::placeholder { color: var(--text-light); opacity: 0.45; font-weight: normal; transition: opacity 0.3s ease; }
-        textarea.scrollable-input::placeholder { color: #a0aec0 !important; opacity: 0.6 !important; font-weight: 400 !important; }
-        .hide-placeholder::placeholder { opacity: 0 !important; color: transparent !important; }
-        
         .checkbox-label { display: inline-flex; width: fit-content; align-items: center; font-weight: 500; cursor: pointer; font-size: 15px; margin-top: 5px; color: var(--text-muted); transition: var(--theme-transition);}
         .checkbox-label input { margin-right: 10px; width: 18px; height: 18px; cursor: pointer; }
 
@@ -175,11 +165,37 @@
         .custom-pool-alert p { color: #2ecc71; margin: 0; font-size: 13px; opacity: 0.9; font-weight: bold;}
         .custom-pool-alert button { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s;}
         .custom-pool-alert button:hover { background: #c0392b; transform: scale(1.02);}
-
-        .display { font-size: 80px; font-weight: bold; color: var(--display-text); background: var(--display-bg); border: 2px dashed var(--display-border); border-radius: 16px; margin: 0 0 30px 0; min-height: 180px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; padding: 20px; gap: 20px; cursor: pointer; position: relative; transition: var(--theme-transition); user-select: none; align-content: center; font-variant-numeric: tabular-nums; }
-        .display:hover { box-shadow: inset 0 0 20px rgba(41, 128, 185, 0.08); }
         
-        .display span { background: var(--display-card); padding: 5px 25px; border-radius: 12px; box-shadow: 0 4px 10px var(--shadow-base); position: relative; z-index: 2; transition: var(--theme-transition); display: inline-block; text-align: center; box-sizing: border-box; max-width: 100%; font-size: clamp(20px, 5vw, 70px); vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .display { 
+            font-size: 40px; font-weight: bold; color: var(--display-text); 
+            background: var(--display-bg); border: 2px dashed var(--display-border); 
+            border-radius: 16px; margin: 0 0 30px 0; 
+            min-height: 180px; /* 托底高度防止抖动 */
+            
+            /* 💡 核心修改：后台控制区同步升级为 Grid 两列排布 */
+            display: grid !important;
+            grid-template-columns: repeat(2, max-content);
+            justify-content: center;
+            align-content: center;
+            gap: 12px 30px; /* 适当缩窄后台的间距 */
+            padding: 20px; 
+        }
+        .display:hover { box-shadow: inset 0 0 20px rgba(41, 128, 185, 0.08); }
+
+        .display span { 
+            background: var(--display-card); 
+            padding: 6px 20px; /* 💡 缩小单个方块的留白 */
+            border-radius: 10px; 
+            box-shadow: 0 4px 10px var(--shadow-base); 
+            position: relative; z-index: 2; 
+            transition: var(--theme-transition); 
+            display: inline-block; text-align: center; box-sizing: border-box; 
+            max-width: 100%; 
+            
+            /* 💡 核心修改：大幅缩小控制台卡片的字体，保证工号和姓名完美容纳 */
+            font-size: clamp(16px, 2.5vw, 36px); 
+            vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
         
         .btn-group { display: flex; gap: 15px; width: 100%; position: relative; z-index: 5; }
         .btn { padding: 18px; font-size: 22px; font-weight: bold; letter-spacing: 2px; color: white; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; position: relative; }
@@ -194,6 +210,7 @@
         .add-preset-btn { background: #10b981; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s;}
         .add-preset-btn:hover { background: #059669; }
         
+        /* ================= 4. 预设页签系统 ================= */
         .preset-list { flex: 1; overflow-y: scroll; overflow-x: hidden; display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 6px 10px 6px 4px; list-style: none; min-height: 0; width: 100%;}
         .preset-list::-webkit-scrollbar { width: 6px; }
         .preset-list::-webkit-scrollbar-track { background: transparent; }
@@ -218,13 +235,7 @@
         .preset-controls { display: flex; align-items: center; gap: 4px; opacity: 0; transition: opacity 0.2s; margin-left: 8px; flex-shrink: 0; }
         .preset-item:hover .preset-controls { opacity: 1; }
         .preset-move-group { display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center;}
-        
-        .preset-move-btn { 
-            background: none; border: none; color: var(--text-light); 
-            cursor: pointer; padding: 2px; line-height: 1; 
-            display: flex; align-items: center; justify-content: center; 
-            transition: all 0.2s; border-radius: 4px;
-        }
+        .preset-move-btn { background: none; border: none; color: var(--text-light); cursor: pointer; padding: 2px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: all 0.2s; border-radius: 4px;}
         .preset-move-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
         .preset-move-btn:hover { color: #3498db; transform: scale(1.15);}
         .preset-move-placeholder { width: 18px; height: 18px; }
@@ -233,6 +244,7 @@
         .preset-item:hover .preset-badge-del { display: flex; }
         .preset-badge-del:hover { transform: scale(1.15); background: #c0392b;}
 
+        /* ================= 5. 抽奖大屏与审计面板 ================= */
         .mean-board { background: var(--board-bg); border: 1px solid var(--board-border); padding: 12px 10px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; transition: var(--theme-transition); flex-shrink: 0;}
         .mean-box { flex: 1; text-align: center; border-right: 1px dashed var(--board-border-dash); padding: 0 5px; transition: var(--theme-transition);}
         .mean-box:last-child { border-right: none; }
@@ -289,7 +301,9 @@
         .export-btn { color: var(--text-light); } .export-btn:hover { color: var(--text-main); text-decoration: underline; }
         .poster-btn { color: var(--highlight-text); } .poster-btn:hover { opacity: 0.8; text-decoration: underline; }
 
-        .instruction-box { max-width: 1400px; width: 100%; margin-top: 30px; font-size: 14px; color: var(--text-muted); line-height: 1.8; text-align: left; padding: 20px; background: rgba(52, 152, 219, 0.05); border-radius: 12px; box-sizing: border-box; border: 1px dashed #a3cbf1; transition: var(--theme-transition); display: flex; flex-direction: column; gap: 15px;}
+        /* ================= 6. 静态说明与弹窗 ================= */
+        .instruction-box { max-width: 1400px; width: 100%; margin-top: 30px; font-size: 14px; color: var(--text-muted); line-height: 1.8; text-align: left; padding: 20px; background: rgba(52, 152, 219, 0.05); border-radius: 12px; box-sizing: border-box; border: 1px dashed #a3cbf1; transition: var(--theme-transition); display: flex; flex-direction: column;}
+        .instruction-section { margin-bottom: 10px; } .instruction-section:last-child { margin-bottom: 0; }
         .disclaimer { max-width: 1400px; width: 100%; margin-top: 15px; font-size: 13px; color: var(--text-muted); line-height: 1.8; text-align: justify; padding: 20px; background: rgba(150,150,150,0.1); border-radius: 12px; box-sizing: border-box; border: 1px solid var(--border-color); transition: var(--theme-transition); }
         .footer-copyright { margin-top: 25px; font-size: 12px; color: var(--text-light); text-align: center; letter-spacing: 1px; opacity: 0.8; transition: var(--theme-transition);}
 
@@ -306,8 +320,25 @@
         .modal-prize-highlight-text { background: var(--prize-log-bg); border: 2px dashed var(--prize-log-border); border-radius: 12px; padding: 10px 25px; color: var(--highlight-text); font-size: 22px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: var(--theme-transition);}
         .modal-prize-img-preview { max-height: 280px; max-width: 100%; object-fit: scale-down; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: 3px solid var(--border-color); background: var(--input-bg); }
         
-        .modal-number { font-size: 70px; color: var(--lucky-text); font-weight: bold; margin: 0 auto 40px auto; max-width: 650px; line-height: 1.2; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
-        .modal-number span { background: var(--input-bg); border: 2px solid var(--lucky-text); border-radius: 15px; padding: 5px 25px; transition: var(--theme-transition); font-size: clamp(30px, 6vw, 70px); max-width: 100%; box-sizing: border-box; white-space: normal; word-break: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.08); text-shadow: 1px 1px 2px rgba(0,0,0,0.1);}
+        /* 💡 修复：改回 Flex 弹性布局，确保单数/多行时尾部元素绝对居中 */
+        .modal-number { 
+            color: var(--lucky-text); font-weight: bold; 
+            margin: 0 auto 40px auto; max-width: 800px; line-height: 1.2; 
+            display: flex !important; /* 放弃 Grid，改用 Flex */
+            flex-wrap: wrap;          /* 允许自动换行 */
+            justify-content: center;  /* 整体与每一行都绝对居中 */
+            align-items: center;
+            gap: 15px 30px; 
+        }
+        .modal-number span { 
+            background: var(--input-bg); border: 2px solid var(--lucky-text); 
+            border-radius: 12px; padding: 5px 15px; transition: var(--theme-transition); 
+            font-size: clamp(25px, 4vw, 55px); 
+            max-width: none; 
+            box-sizing: border-box; white-space: nowrap; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            text-align: center; /* 确保框内文字也居中 */
+        }
         
         .close-btn { padding: 15px 40px; font-size: 18px; font-weight: bold; background: #3182ce; color: white; border: none; border-radius: 10px; cursor: pointer; transition: background 0.3s; }
         .close-btn:hover { background: #2b6cb0; }
@@ -332,7 +363,105 @@
         
         #imageModal .modal-content { padding: 30px 40px; display: flex; flex-direction: column; align-items: center; min-width: 320px; }
         #largePreviewImg { max-width: 100%; max-height: 60vh; object-fit: scale-down; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: 2px solid var(--border-color); background: var(--input-bg); }
+
+        #posterOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); cursor: pointer; }
+        #posterOverlay img { max-width: 95%; max-height: 95vh; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        /* ================= 7. 导播大屏双轨专属 CSS ================= */
+        .screen-mode .lottery-panel { 
+            background: transparent; border: none; box-shadow: none; 
+            justify-content: center; align-items: center;
+            min-height: 80vh; width: 100%; max-width: 100%; padding: 0; flex: none;
+        }
+        
+        .screen-mode .main-wrapper { max-width: 100%; width: 100%; padding: 0 5%; align-items: center; }
+        
+        .screen-mode h1 { font-size: 60px; text-align: center; margin-bottom: 20px; text-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .screen-mode .subtitle { font-size: 30px; text-align: center; margin-bottom: 55px; opacity: 0.9; }
+        
+        /* 💡 修复：Flex 弹性流式排版，防抖底座 */
+        /* 💡 核心修改：Flex/Grid 弹性流式排版，防抖底座 + 动态自适应横向宽度 */
+        .screen-mode .display { 
+            min-height: 350px; /* 撑起固定高度，防止人多或人少时上下鬼畜抖动 */
+            margin: 0 auto; 
+            border-width: 4px; background: rgba(255,255,255,0.05); 
+            
+            display: grid !important; 
+            grid-template-columns: repeat(2, max-content); /* 严丝合缝地锁定为 2 列 */
+            justify-content: center; align-content: center; 
+            gap: 25px 50px;
+            
+            /* 💡 杀手锏：取消 90% 撑满，改为按 2 列内容的长短自动完美收紧或扩充 */
+            width: fit-content !important; 
+            padding: 30px 60px; /* 左右留出舒适的呼吸边距 */
+            
+            /* 设定安全边界值：默认汉字时不小于 600px，最长工号时不大于 1100px */
+            min-width: 600px;
+            max-width: 1100px;
+        }
+        [data-theme="dark"] .screen-mode .display { background: rgba(0,0,0,0.2); }
+        
+        .screen-mode .display span { 
+            padding: 10px 35px; border-radius: 20px; 
+            font-size: clamp(35px, 4vw, 85px); /* 字体适度调整 */
+            box-shadow: 0 10px 30px var(--shadow-base); 
+            text-align: center;
+            max-width: none; /* 💡 解除原有最大宽度的强制截断 */
+        }
+        
+        #screenPrizePreview { display: none; text-align: center; margin-bottom: 40px; animation: fadeIn 0.5s ease; }
+        .screen-mode #screenPrizePreview { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px;}
+        .screen-mode #screenPrizePreview .prize-title { font-size: 50px; font-weight: bold; color: var(--highlight-text); margin-bottom: 20px; text-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* 💡 修复：适当增加大屏图片默认显示大小 */
+        .screen-mode #screenPrizePreview img { max-height: 500px; border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+
+        /* 💡 修复：大屏弹出大图预览时隐藏关闭按钮 */
+        .screen-mode #imageModal .close-btn { display: none !important; }
+
+        /* 💡 专属新增：等比例强力放大观众大屏的中奖弹窗整体视觉 */
+        .screen-mode #resultModal .modal-content {
+            padding: 70px 90px !important;    
+            max-width: 95% !important;        /* 从 90% 放宽到 95% */
+            width: 1200px !important;         /* 强制拉宽 */
+            border: 3px solid var(--lucky-text);
+            white-space: nowrap !important;   /* 💡 新增：防挤压换行锁 */
+        }
+
+        .screen-mode #resultModal h2 {
+            font-size: 55px !important;       /* 放大“恭喜中奖”标题 */
+            margin-bottom: 35px !important;
+        }
+
+        .screen-mode #resultModal .modal-prize-highlight-text {
+            font-size: 32px !important;       /* 放大奖品描述文字 */
+            padding: 15px 40px !important;
+        }
+
+        .screen-mode #resultModal .modal-prize-img-preview {
+            max-height: 380px !important;     /* 放大弹窗内的奖品图片上限 */
+        }
     </style>
+    <script>
+        (function() {
+            // 清理旧版本可能遗留的永久死锁
+            localStorage.removeItem('pro_lottery_manual_theme'); 
+            
+            const urlTheme = new URLSearchParams(window.location.search).get('theme');
+            const sessionTheme = sessionStorage.getItem('pro_lottery_session_theme');
+            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // 优先级：URL透传 > 当前会话 > 系统偏好
+            const theme = urlTheme || sessionTheme || (systemDark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            if (theme === 'dark') {
+                document.documentElement.style.backgroundColor = '#000000';
+            } else {
+                document.documentElement.style.backgroundColor = '#f4f7f6';
+            }
+        })();
+    </script>
 </head>
 <body class="zh">
 
@@ -346,34 +475,44 @@
 
     <canvas id="confettiCanvas"></canvas>
 
-    <div class="top-controls">
-        <a class="top-btn" href="https://github.com/T1MESX/Lottery-Pro" target="_blank" title="GitHub Repository">
+    <div id="posterOverlay" onclick="this.style.display='none'; if(!isScreenMode) sendSignal('CLOSE_POSTER', {});">
+        <img id="posterOverlayImg" src="">
+    </div>
+
+    <div class="top-controls" id="topNavArea">
+        <a class="top-btn" href="https://github.com/T1MESX/Lottery-Pro" target="_blank" title="GitHub Repository" id="navGithub">
             <svg height="18" viewBox="0 0 16 16" width="18" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-            <span id="versionText">v3.2.5</span>
+            <span id="versionText">v4.1.0</span>
         </a>
-        <span>|</span>
+        <span class="nav-sep">|</span>
         <span class="top-btn" id="btnExportState" onclick="exportState()">
             <span class="lang-zh">💾 导出快照</span><span class="lang-en">💾 EXPORT</span>
         </span>
-        <span>|</span>
+        <span class="nav-sep">|</span>
         <span class="top-btn" id="btnImportState" onclick="document.getElementById('importStateInput').click()">
             <span class="lang-zh">📥 导入快照</span><span class="lang-en">📥 IMPORT</span>
         </span>
-        <span>|</span>
+        <span class="nav-sep">|</span>
         <span class="top-btn" id="themeBtn" onclick="toggleTheme()">
             <span class="lang-zh" id="themeBtnText">🌙 影院模式</span><span class="lang-en" id="themeBtnTextEn">🌙 Cinema Mode</span>
         </span>
-        <span>|</span>
+        <span class="nav-sep">|</span>
+        
+        <span class="top-btn" id="btnDirector" onclick="toggleDirectorMode()" style="font-weight: 900;">
+            <span class="lang-zh">📺 导播大屏</span><span class="lang-en">📺 DIRECTOR</span>
+        </span>
+        <span class="nav-sep">|</span>
+
         <span class="top-btn" id="fullscreenBtn" onclick="toggleFullscreen()">
             <span class="lang-zh">🔲 全屏</span><span class="lang-en">🔲 Fullscreen</span>
         </span>
-        <span>|</span>
+        <span class="nav-sep">|</span>
         <span class="top-btn" id="loadMusicBtn" onclick="document.getElementById('localBgmInput').click()">
             <span class="lang-zh">📂 本地音乐</span><span class="lang-en">📂 Load Music</span>
         </span>
-        <span>|</span>
+        <span class="nav-sep">|</span>
         
-        <div class="vol-control-wrap">
+        <div class="vol-control-wrap" id="volControlGroup">
             <span class="top-btn" id="musicBtn" onclick="toggleMusic()">🎵 <span class="lang-zh">音乐: 关</span><span class="lang-en">BGM: OFF</span></span>
             <div class="vol-bubble">
                 <div class="vol-track-name-box" id="musicNameBox">
@@ -381,18 +520,18 @@
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span style="font-size:12px; color:var(--text-muted);">🔈</span>
-                    <input type="range" id="volSlider" class="vol-slider" min="0" max="1" step="0.01" value="0.5" title="音量调节 / Volume">
+                    <input type="range" id="volSlider" class="vol-slider" min="0" max="1" step="0.01" value="0.62">
                     <span style="font-size:12px; color:var(--text-muted);">🔊</span>
                 </div>
             </div>
         </div>
 
-        <span>|</span>
+        <span class="nav-sep">|</span>
         <span class="top-btn" id="langBtn" onclick="toggleLanguage()"><span class="lang-zh">EN</span><span class="lang-en">中</span></span>
     </div>
 
-    <div class="main-wrapper">
-        <div class="panel lottery-panel">
+    <div class="main-wrapper" id="coreWrapper">
+        <div class="panel lottery-panel" id="mainLotteryPanel">
             <h1>
                 <span class="lang-zh" id="mainTitleZh"></span>
                 <span class="lang-en" id="mainTitleEn"></span>
@@ -401,12 +540,15 @@
                 <span class="lang-zh" id="subTitleZh"></span>
                 <span class="lang-en" id="subTitleEn"></span>
             </h2>
-            <div class="hint">
+            
+            <div id="screenPrizePreview" style="display:none; text-align:center; margin-bottom:40px; animation:fadeIn 0.5s ease; flex-direction:column; align-items:center; justify-content:center; min-height:250px;"></div>
+
+            <div class="hint" id="mainHint">
                 <span class="lang-zh">（支持点击底部按钮或按下 <b>空格键</b> 启停，<b>双击摇奖区</b> 透视候选池）</span>
                 <span class="lang-en">(Press <b>SPACE</b> to toggle. <b>DBL-CLICK blue area</b> to inspect candidates)</span>
             </div>
             
-            <div class="settings-grid">
+            <div class="settings-grid" id="mainSettingsGrid">
                 
                 <div class="setting-item full-width flex-row-setting">
                     <div class="flex-1-setting" id="prizeInputWrap">
@@ -422,8 +564,8 @@
                         </div>
                         <div id="imgPreviewBox">
                             <div class="img-preview-container">
-                                <img id="previewImg" src="" title="点击预览大图 / Click to preview">
-                                <button class="delete-img-btn" onclick="clearImage()" title="移除图片 / Remove">×</button>
+                                <img id="previewImg" src="">
+                                <button class="delete-img-btn" id="btnRemoveImg" onclick="clearImage()">×</button>
                             </div>
                         </div>
                     </div>
@@ -472,6 +614,11 @@
                 </div>
                 <div class="setting-item full-width">
                     <label class="checkbox-label">
+                        <input type="checkbox" id="presetModeOnly">
+                        <span class="lang-zh">开启预设模式 (仅允许抽取预设奖项)</span>
+                        <span class="lang-en">Preset Mode (Only draw from presets)</span>
+                    </label>
+                    <label class="checkbox-label">
                         <input type="checkbox" id="noRepeat" checked>
                         <span class="lang-zh">开启不重复模式 (已被抽中的数据将自动剔除)</span>
                         <span class="lang-en">Enable No-Repeat (Winners are excluded from pool)</span>
@@ -479,9 +626,9 @@
                 </div>
             </div>
 
-            <div class="display" id="numberDisplay" title="Double click to inspect pool">?</div>
+            <div class="display" id="numberDisplay" title="Double click to inspect pool"><span style="grid-column: 1 / -1; background: transparent; box-shadow: none; border: none; font-size: 80px; color: var(--text-light);">?</span></div>
 
-            <div class="btn-group">
+            <div class="btn-group" id="mainBtnGroup">
                 <button class="btn btn-main" id="controlBtn">
                     <span class="lang-zh">开始抽奖</span><span class="lang-en">START DRAW</span>
                 </button>
@@ -494,7 +641,7 @@
             </div>
         </div>
 
-        <div class="stats-panel-wrapper">
+        <div class="stats-panel-wrapper" id="rightPanelWrapper">
             <div class="stats-panel-wrapper-inner">
                 
                 <div class="panel preset-panel">
@@ -516,8 +663,8 @@
                 <div class="panel stats-panel">
                     <div class="panel-header-wrapper" id="statsTitleWrap">
                         <h3>
-                            <span class="lang-zh" id="statsTitleZh">📊 抽奖日志</span>
-                            <span class="lang-en" id="statsTitleEn">📊 Draw Logs</span>
+                            <span class="lang-zh" id="statsTitleZh">📊 抽奖日志与统计</span>
+                            <span class="lang-en" id="statsTitleEn">📊 Logs & Stats</span>
                         </h3>
                         <div class="sys-clock" id="sysClock">--</div>
                     </div>
@@ -573,7 +720,7 @@
         </div>
     </div>
 
-    <div class="instruction-box">
+    <div class="instruction-box" id="infoBox1">
         <div class="instruction-section">
             <b><span class="lang-zh">💡 导入名单说明：</span><span class="lang-en">💡 Import Instructions:</span></b><br>
             <span class="lang-zh">
@@ -587,20 +734,20 @@
                 3. txt/csv delimiters: newlines, spaces, commas.
             </span>
         </div>
-        <div class="instruction-section" style="margin-top: 0px;">
+        <div class="instruction-section">
             <b><span class="lang-zh">🎵 音乐与音效说明：</span><span class="lang-en">🎵 Audio Instructions:</span></b><br>
             <span class="lang-zh">
                 1. 顶部导航栏支持点击或直接拖拽 <b>.mp3 / .flac</b> 加载背景音乐与滚轮音效。<br>
-                2. 音乐单曲循环，悬停“音乐”按钮可调节全局音量。亦可在同目录放置 <code>bgm.mp3</code>, <code>rolling.mp3</code>, <code>success.mp3</code> 自动加载。
+                2. 音乐单曲循环，悬停“音乐”按钮可调节全局音量。可在同目录放置 <b>bgm.mp3</b>(背景乐), <b>rolling.mp3</b>(摇奖声), <b>success.mp3</b>(中奖声) 即可自动加载。
             </span>
             <span class="lang-en">
                 1. Click or drag <b>.mp3 / .flac</b> to top nav for BGM and SFX.<br>
-                2. Hover "BGM" for volume. Auto-load via <code>bgm.mp3</code>, <code>rolling.mp3</code>, <code>success.mp3</code> in root.
+                2. Hover "BGM" for volume. Auto-load via <b>bgm.mp3</b>(BGM), <b>rolling.mp3</b>(Roll SFX), <b>success.mp3</b>(Win SFX) in root.
             </span>
         </div>
     </div>
 
-    <div class="disclaimer">
+    <div class="disclaimer" id="infoBox2">
         <b><span class="lang-zh">⚖️ 公平性与透明度说明：</span><span class="lang-en">⚖️ Fairness & Transparency Statement:</span></b><br>
         <span class="lang-zh">
             本终端为纯前端架构（SPA），所有名单解析与抽奖运算均在您的浏览器本地完成，数据绝不上传服务器，从根本上消除后端操作干预可能。在随机性方面，我们摒弃了普通的 <code>Math.random()</code>，采用密码学标准的安全引擎 (Web Crypto API CSPRNG) 配合拒绝采样算法，竭力保障每一次抽取的统计学公平。同时，系统内置了本地缓存灾备机制，即使意外断电刷新也能无损恢复进度。<br><br>
@@ -612,7 +759,7 @@
         </span>
     </div>
 
-    <div class="footer-copyright">
+    <div class="footer-copyright" id="footerText">
         <span class="lang-zh" id="footerOrgZh"></span>
         <span class="lang-en" id="footerOrgEn"></span> &nbsp;|&nbsp; 
         <a href="https://github.com/T1MESX/Lottery-Pro" target="_blank" style="color: inherit; text-decoration: none;">Designed by T1MESX</a>
@@ -624,7 +771,7 @@
                 <h2>🎉 <span class="lang-zh">恭喜中奖</span><span class="lang-en">Congratulations</span> 🎉</h2>
                 <div id="modalPrizeInfo"></div>
                 <div class="modal-number" id="modalNumber"></div>
-                <button class="close-btn" onclick="closeResultModal()"><span class="lang-zh">确定 (Enter)</span><span class="lang-en">OK (Enter)</span></button>
+                <button class="close-btn" id="modalCloseBtn" onclick="closeResultModal()"><span class="lang-zh">确定 (Enter)</span><span class="lang-en">OK (Enter)</span></button>
             </div>
         </div>
     </div>
@@ -633,7 +780,7 @@
         <div class="modal-content">
             <h2 id="poolCountTitle">--</h2>
             <div id="poolContent" style="margin-bottom: 30px;"></div>
-            <button class="close-btn" style="background:#718096;" onclick="closePoolModal()"><span class="lang-zh">关闭 (Esc)</span><span class="lang-en">Close (Esc)</span></button>
+            <button class="close-btn" id="poolCloseBtn" style="background:#718096;" onclick="closePoolModal()"><span class="lang-zh">关闭 (Esc)</span><span class="lang-en">Close (Esc)</span></button>
         </div>
     </div>
 
@@ -649,9 +796,9 @@
     </div>
 
     <script>
-        // ================= 0. 全局统一配置 =================
+        // ================= 8. 全局统一配置 =================
         const SYS_CONFIG = {
-            version: "v3.2.5",
+            version: "v4.1.0",
             tag: "", 
             
             imageCompression: {
@@ -661,18 +808,18 @@
             },
 
             zh: {
-                mainTitle: "🍿 抽奖终端 Pro v3 🍿",
+                mainTitle: "🍿 抽奖终端 Pro v4 🍿",
                 subTitle: "—— [在此替换您的活动名称] ——",
                 footerOrg: "[此处可替换主办方名称]"
             },
             en: {
-                mainTitle: "🍿 Lottery Pro v3 🍿",
+                mainTitle: "🍿 Lottery Pro v4 🍿",
                 subTitle: "—— [Replace With Your Event Name] ——",
                 footerOrg: "[Your Organization]"
             }
         };
 
-        // ================= 1. 全局状态变量 =================
+        // ================= 9. 全局状态变量 =================
         let timer = null;          
         let isRunning = false;     
         let drawCount = 0;         
@@ -686,8 +833,6 @@
         let currentLang = 'zh';
         let currentStars = 0;
         let isSettling = false; 
-        
-        let sfxFileUrl = ''; 
 
         let isCustomPool = false;
         let rawCustomPoolOrigin = []; 
@@ -703,7 +848,19 @@
         let lastExclude = '';
         let lastPrizeNote = '';
 
-        // ================= 2. 多语言系统 (i18n) =================
+        // 💡 [双屏架构] 核心鉴权状态
+        const isScreenMode = new URLSearchParams(window.location.search).get('mode') === 'screen';
+        let directorWin = null;
+        let directorCheckInterval = null;
+
+        // 💡 [窗口生命周期同步关闭]
+        window.addEventListener('unload', () => {
+            if (!isScreenMode && directorWin && !directorWin.closed) {
+                directorWin.close();
+            }
+        });
+
+        // ================= 10. 多语言系统 (i18n) =================
         const i18n = {
             zh: {
                 musicOn: '音乐: 开', musicOff: '音乐: 关',
@@ -715,7 +872,7 @@
                 alertMinMax: '起始号码必须小于截止号码！',
                 alertBatch: '单次抽取人数异常！',
                 alertLack: '候选池不足！当前剩余可用: {n} 个。',
-                alertReset: '确定要重置数据并清空所有已中奖记录吗？',
+                alertReset: '确定要将所有人员重置回候选池吗？\n（已排除的名单和数字不会恢复，已经产生的抽奖记录仍会安全保留在日志中）',
                 alertFormat: '排除名单格式异常，请重新检查！',
                 alertRange: '排除名单范围错误！',
                 alertPositive: '必须是正整数！',
@@ -751,7 +908,7 @@
                 logPresetDel: '已删除预设',
                 logListImport: '已成功载入自定义名单。',
                 logListClear: '已退出自定义名单模式，恢复数字区间模式。',
-                noMusic: '未检测到可用音频！\n👉 方案一：在同目录下放置 bgm.mp3, rolling.mp3, success.mp3（系统会自动读取）。\n👉 方案二：拖拽音频文件或点击 [📂 本地音乐] 手动导入BGM。'
+                noMusic: '未检测到可用音频！\n👉 方案一：在同目录下放置 bgm.mp3, rolling.mp3, success.mp3（系统会自动读取）。\n👉 方案二：拖拽音频文件或点击 [📂 本地音乐] 手动导入。'
             },
             en: {
                 musicOn: 'BGM: ON', musicOff: 'BGM: OFF',
@@ -763,7 +920,7 @@
                 alertMinMax: 'Start Num must be less than End Num!',
                 alertBatch: 'Invalid batch size!',
                 alertLack: 'Insufficient candidates! Remaining: {n}.',
-                alertReset: 'Are you sure you want to reset data and clear all history?',
+                alertReset: 'Are you sure to restore all candidates to the pool?\n(Excluded lists will NOT be restored. Existing draw logs are safely kept)',
                 alertFormat: 'Invalid format in excludes list!',
                 alertRange: 'Invalid range in excludes list!',
                 alertPositive: 'Must be a positive integer!',
@@ -794,16 +951,16 @@
                 posterTitle: '🎉 WINNERS ANNOUNCEMENT 🎉',
                 posterSub: '— Congratulations —',
                 uploadTip: 'Upload Image (Drop supported)\n(Due to browser storage limits: ≤1MB GIFs remain animated, others HD compressed)',
-                alertPresetMax: 'Maximum 20 presets allowed! Please delete some first.',
+                alertPresetMax: 'Maximum 20 allowed! Please delete some first.',
                 logPresetAdd: 'Preset added: {name}',
                 logPresetDel: 'Preset deleted',
                 logListImport: 'Custom list imported successfully.',
                 logListClear: 'Custom list mode exited. Number range restored.',
-                noMusic: 'No audio detected!\n👉 Option 1: Place bgm.mp3, rolling.mp3, success.mp3 in the directory.\n👉 Option 2: Drag & drop or click [📂 Load Music] to import BGM.'
+                noMusic: 'No audio detected!\n👉 Option 1: Place bgm.mp3, rolling.mp3, success.mp3 in the directory.\n👉 Option 2: Drag & drop or click [📂 Load Music] to import.'
             }
         };
 
-        // ================= 3. UI 初始化与工具提示 =================
+        // ================= 11. UI 初始化与双轨洗牌引擎 =================
         function initGlobalConfig() {
             document.title = `${SYS_CONFIG.tag ? SYS_CONFIG.tag + ' ' : ''}Lottery Pro ${SYS_CONFIG.version}`;
             document.getElementById('versionText').innerText = SYS_CONFIG.version;
@@ -813,15 +970,60 @@
             document.getElementById('subTitleEn').innerText = SYS_CONFIG.en.subTitle;
             document.getElementById('footerOrgZh').innerText = SYS_CONFIG.zh.footerOrg;
             document.getElementById('footerOrgEn').innerText = SYS_CONFIG.en.footerOrg;
-            
-            const minEl = document.getElementById('minNum');
-            const maxEl = document.getElementById('maxNum');
-            const batchEl = document.getElementById('batchNum');
-            const excEl = document.getElementById('excludeNum');
-            if (minEl) lastMin = minEl.value;
-            if (maxEl) lastMax = maxEl.value;
-            if (batchEl) lastBatch = batchEl.value;
-            if (excEl) lastExclude = excEl.value.trim();
+
+            if (isScreenMode) {
+                // 💡 [大屏彻底洗牌] 摧毁所有多余DOM，只保留展示核心
+                document.body.classList.add('screen-mode');
+                
+                // 大屏顶部导航栏纯净化，仅保留全屏按钮
+                const topNav = document.getElementById('topNavArea');
+                if (topNav) {
+                    const fsBtn = document.getElementById('fullscreenBtn');
+                    topNav.innerHTML = '';
+                    if (fsBtn) topNav.appendChild(fsBtn);
+                }
+
+                const killList = [
+                    'mainHint', 'mainSettingsGrid', 'mainBtnGroup', 'rightPanelWrapper', 
+                    'infoBox1', 'infoBox2', 'footerText', 
+                    'modalCloseBtn', 'poolCloseBtn'
+                ];
+                killList.forEach(id => { const el = document.getElementById(id); if(el) el.remove(); });
+                
+                // 强制重塑 CSS
+                const mainPanel = document.getElementById('mainLotteryPanel');
+                if(mainPanel) {
+                    mainPanel.style.background = 'transparent';
+                    mainPanel.style.border = 'none';
+                    mainPanel.style.boxShadow = 'none';
+                    mainPanel.style.justifyContent = 'center';
+                    mainPanel.style.alignItems = 'center';
+                    mainPanel.style.minHeight = '80vh';
+                    mainPanel.style.padding = '0';
+                }
+                const wrapper = document.getElementById('coreWrapper');
+                if(wrapper) {
+                    wrapper.style.maxWidth = '100%';
+                    wrapper.style.width = '100%';
+                    wrapper.style.padding = '0 5%';
+                }
+
+                // 强制拔除声带
+                const audios = document.querySelectorAll('audio');
+                audios.forEach(a => a.remove());
+                
+                // 设置初始占位
+                updateWaitingText();
+            } else {
+                const minEl = document.getElementById('minNum');
+                const maxEl = document.getElementById('maxNum');
+                const batchEl = document.getElementById('batchNum');
+                const excEl = document.getElementById('excludeNum');
+                if (minEl) lastMin = minEl.value;
+                if (maxEl) lastMax = maxEl.value;
+                if (batchEl) lastBatch = batchEl.value;
+                if (excEl) lastExclude = excEl.value.trim();
+            }
         }
 
         function t(key, params={}) {
@@ -838,12 +1040,17 @@
         }
 
         function updateTooltips() {
+            if(isScreenMode) return;
             const isZh = currentLang === 'zh';
             const setAttr = (id, attr, val) => { const el = document.getElementById(id); if (el) el.setAttribute(attr, val); };
-            
+
+            setAttr('btnRemoveImg', 'title', isZh ? "移除图片" : "Remove Image");
+            setAttr('volSlider', 'title', isZh ? "音量调节" : "Volume Control");
+            setAttr('previewImg', 'title', isZh ? "点击预览大图" : "Click to preview large image");
             setAttr('importBtnUI', 'title', isZh ? "导入名单 (支持 .xlsx, .xls, .csv, .txt)\n支持直接将文件拖拽至此按钮或右侧蓝色摇奖区。\n注意：Excel仅读取Sheet1的A列，请删去表头！" : "Import List (.xlsx, .csv, .txt)\nSupport Drag & Drop to this button or the blue display area.\nNote: Reads only Column A of Sheet1. Remove headers!");
             setAttr('controlBtn', 'title', isZh ? "开始抽奖 (快捷键: 空格)" : "Start Draw (Hotkey: Space)");
             setAttr('btnResetUI', 'title', isZh ? "清空当前所有抽奖记录并将人员重置回候选池" : "Reset all records & restore pool");
+            setAttr('btnDirector', 'title', isZh ? "开启无界面的纯净观众大屏窗口 (快捷键: P)" : "Open a clean presentation screen (Hotkey: P)");
             setAttr('themeBtn', 'title', isZh ? "切换暗黑/明亮模式 (快捷键: D)" : "Toggle Dark/Light Mode (Hotkey: D)");
             setAttr('fullscreenBtn', 'title', isZh ? "切换全屏 (快捷键: F)" : "Toggle Fullscreen (Hotkey: F)");
             setAttr('loadMusicBtn', 'title', isZh ? "导入本地音频 (.mp3, .flac)\n支持拖拽音频文件至此区" : "Load Audio files (.mp3, .flac)\nDrag & Drop supported");
@@ -873,11 +1080,11 @@
         }
 
         function toggleListModeUI(active) {
+            if(isScreenMode) return;
             document.getElementById('itemMin').style.display = active ? 'none' : 'flex';
             document.getElementById('itemMax').style.display = active ? 'none' : 'flex';
             document.getElementById('itemExclude').style.display = active ? 'none' : 'flex';
             document.getElementById('customPoolAlert').style.display = active ? 'flex' : 'none';
-            
             document.getElementById('meanBoard').style.display = active ? 'none' : 'flex';
             document.getElementById('advancedBoard').style.display = active ? 'none' : 'flex';
 
@@ -885,12 +1092,13 @@
                 document.getElementById('statsTitleZh').innerText = "📊 抽奖日志";
                 document.getElementById('statsTitleEn').innerText = "📊 Draw Logs";
             } else {
-                document.getElementById('statsTitleZh').innerText = "📊 抽奖统计与日志";
-                document.getElementById('statsTitleEn').innerText = "📊 Stats & Logs";
+                document.getElementById('statsTitleZh').innerText = "📊 抽奖日志与统计";
+                document.getElementById('statsTitleEn').innerText = "📊 Logs & Stats";
             }
         }
 
         function updateLogButtonsLanguage() {
+            if(isScreenMode) return;
             document.querySelectorAll('.invalid-btn').forEach(btn => {
                 if (btn.id.startsWith('btn-cancel-')) {
                     btn.innerText = currentLang === 'zh' ? '取消' : 'Cancel';
@@ -907,24 +1115,76 @@
             });
         }
 
-        // ================= 4. 语言与主题切换 =================
+        // 💡 [大屏机制] 大屏待机状态文本刷新器
+        function updateWaitingText() {
+            const nd = document.getElementById('numberDisplay');
+            if(nd && !isRunning) {
+                nd.innerHTML = `<span style="font-size:clamp(30px, 4vw, 50px); border:none; box-shadow:none; background:transparent; color:var(--text-muted); padding:0;">${currentLang === 'zh' ? '等待开始...' : 'Waiting to start...'}</span>`;
+            }
+        }
+
+        // ================= 12. 统一主题引擎 (跟随系统 + 会话干预) =================
         function toggleLanguage() {
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
-            document.body.className = currentLang;
-            const cBtn = document.getElementById('controlBtn');
-            if(!isRunning && cBtn) { cBtn.innerHTML = currentLang === 'zh' ? '<span class="lang-zh">开始抽奖</span><span class="lang-en">START DRAW</span>' : 'START DRAW'; }
-            updateTooltips(); updateClock(); updateStatsBoard(); renderPresets();
-            updateLogButtonsLanguage();
+            document.body.classList.remove('zh', 'en');
+            document.body.classList.add(currentLang);
+            
+            if (isScreenMode) {
+                updateWaitingText();
+            } else {
+                const cBtn = document.getElementById('controlBtn');
+                if(!isRunning && cBtn) { cBtn.innerHTML = currentLang === 'zh' ? '<span class="lang-zh">开始抽奖</span><span class="lang-en">START DRAW</span>' : 'START DRAW'; }
+                updateTooltips(); updateClock(); updateStatsBoard(); renderPresets();
+                updateLogButtonsLanguage();
+                sendSignal('LANG', currentLang); // 💡 向大屏广播语言切换
+                if (directorWin && !directorWin.closed) updateDirectorBtn(true);
+            }
+        }
+
+        function updateThemeUI(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if(!isScreenMode) {
+                const tbText = document.getElementById('themeBtnText');
+                const tbTextEn = document.getElementById('themeBtnTextEn');
+                if(theme === 'dark') {
+                    if(tbText) tbText.innerText = '☀️ 明亮模式';
+                    if(tbTextEn) tbTextEn.innerText = '☀️ Light Mode';
+                } else {
+                    if(tbText) tbText.innerText = '🌙 影院模式';
+                    if(tbTextEn) tbTextEn.innerText = '🌙 Cinema Mode';
+                }
+            } else {
+                const disp = document.getElementById('numberDisplay');
+                if(disp) disp.style.background = theme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.05)';
+            }
         }
 
         function toggleTheme() {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-            const tbText = document.getElementById('themeBtnText');
-            const tbTextEn = document.getElementById('themeBtnTextEn');
-            if(tbText) tbText.innerText = isDark ? '🌙 影院模式' : '☀️ 明亮模式';
-            if(tbTextEn) tbTextEn.innerText = isDark ? '🌙 Cinema Mode' : '☀️ Light Mode';
-            saveState();
+            const newTheme = isDark ? 'light' : 'dark';
+            updateThemeUI(newTheme);
+            
+            // 💡 改用 sessionStorage：只在当前网页有效，关掉网页即恢复“自动跟随”
+            sessionStorage.setItem('pro_lottery_session_theme', newTheme); 
+            if(!isScreenMode) sendSignal('THEME', newTheme);
+        }
+
+        function initOSThemeDetection() {
+            const mediaQuery = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+            if (!mediaQuery) return;
+
+            // 初始加载时应用正确的 UI 和文字
+            const sessionTheme = sessionStorage.getItem('pro_lottery_session_theme');
+            updateThemeUI(sessionTheme || (mediaQuery.matches ? 'dark' : 'light'));
+
+            // 实时监听系统级变化
+            mediaQuery.addEventListener('change', e => {
+                // 💡 杀手锏：当系统物理切换深浅色时，强制解除导播的手动锁定，优先跟随系统！
+                sessionStorage.removeItem('pro_lottery_session_theme');
+                const sysTheme = e.matches ? 'dark' : 'light';
+                updateThemeUI(sysTheme);
+                if(!isScreenMode) sendSignal('THEME', sysTheme);
+            });
         }
 
         function toggleFullscreen() {
@@ -932,9 +1192,9 @@
             else { if (document.exitFullscreen) document.exitFullscreen(); }
         }
 
-        // ================= 5. 本地缓存与快照导入导出 =================
+        // ================= 13. 本地缓存与快照导入导出 =================
         function saveState() {
-            if(isRunning) return;
+            if(isRunning || isScreenMode) return; 
             const volEl = document.getElementById('volSlider');
             const state = { 
                 min: lastMin, max: lastMax, batch: lastBatch, exclude: lastExclude, 
@@ -942,7 +1202,7 @@
                 drawCount: drawCount, logs: globalAuditLogs, historyHtml: document.getElementById('historyList').innerHTML, 
                 theme: document.documentElement.getAttribute('data-theme') || 'light', currentStars: currentStars, 
                 lastPrizeNote: lastPrizeNote, isCustomPool, customPoolOrigin, customPoolExcluded, presets,
-                volume: volEl ? volEl.value : 0.5 
+                volume: volEl ? volEl.value : 0.62 
             };
             
             let saved = false;
@@ -972,7 +1232,8 @@
             const raw = localStorage.getItem('pro_lottery_state'); if(!raw) return;
             try {
                 const state = JSON.parse(raw);
-                
+                if(isScreenMode) return; // 💡 大屏不再从抽奖数据里恢复主题，交给独立引擎
+
                 if(state.volume !== undefined) {
                     const volEl = document.getElementById('volSlider');
                     if(volEl) volEl.value = state.volume;
@@ -993,7 +1254,7 @@
                         drawCount = state.drawCount || 0; 
                         globalAuditLogs = state.logs || []; 
                         document.getElementById('historyList').innerHTML = state.historyHtml || '';
-                        document.documentElement.setAttribute('data-theme', state.theme || 'light');
+                        
                         currentStars = state.currentStars || 0; renderStars(currentStars);
                         lastPrizeNote = state.lastPrizeNote || '';
                         
@@ -1003,13 +1264,6 @@
                         presets = state.presets || [];
 
                         toggleListModeUI(isCustomPool);
-
-                        if(state.theme === 'dark') { 
-                            const tbText = document.getElementById('themeBtnText');
-                            const tbTextEn = document.getElementById('themeBtnTextEn');
-                            if(tbText) tbText.innerText = '☀️ 明亮模式'; 
-                            if(tbTextEn) tbTextEn.innerText = '☀️ Light Mode'; 
-                        }
                         updateStatsBoard(); renderPresets();
                     } else { localStorage.removeItem('pro_lottery_state'); }
                 }
@@ -1056,107 +1310,109 @@
             });
         }
 
-        // ================= 6. 音频播放与控制引擎 =================
+        // ================= 14. 音频播放与控制引擎 (控制台独享) =================
         const audioEl = document.getElementById('bgmAudio');
         const rollingAudio = document.getElementById('rollingAudio'); 
         const successAudio = document.getElementById('successAudio'); 
-        
-        if(audioEl) audioEl.volume = 0.5;
-        if(rollingAudio) rollingAudio.volume = 0.5;
-        if(successAudio) successAudio.volume = 0.5;
-        
         let bgmFadeTimer = null;
 
-        const volSlider = document.getElementById('volSlider');
-        if(volSlider) {
-            volSlider.addEventListener('input', function(e) {
-                if(audioEl) audioEl.volume = e.target.value;
-                if(rollingAudio) rollingAudio.volume = e.target.value;
-                if(successAudio) successAudio.volume = e.target.value;
-                saveState(); 
-            });
-        }
+        if(!isScreenMode) {
+            if(audioEl) audioEl.volume = 0.62;
+            if(rollingAudio) rollingAudio.volume = 0.62;
+            if(successAudio) successAudio.volume = 0.62;
 
-        let musicFileUrl = '';
-        const localBgmInput = document.getElementById('localBgmInput');
-        if(localBgmInput) {
-            localBgmInput.addEventListener('change', function(e) {
-                const files = Array.from(e.target.files).filter(f => (f.type && f.type.startsWith('audio/')) || /\.(mp3|flac)$/i.test(f.name));
-                if(files.length > 0) {
-                    if(musicFileUrl) URL.revokeObjectURL(musicFileUrl);
-                    musicFileUrl = URL.createObjectURL(files[0]);
-                    if(audioEl) audioEl.src = musicFileUrl;
-                    updateMusicName(files[0].name);
-                    addSystemRecord(currentLang === 'zh' ? `成功载入音频：${files[0].name}` : `Audio loaded: ${files[0].name}`);
-                    if (!isMusicPlaying) toggleMusic();
-                    else if(audioEl) audioEl.play().catch(err => console.log(err));
-                } else {
-                    alert(currentLang === 'zh' ? '仅支持 .mp3 或 .flac 格式！' : 'Only .mp3 or .flac supported!');
-                }
-            });
-        }
-
-        function playMusic() {
-            if(musicFileUrl && audioEl) audioEl.src = musicFileUrl;
-            if(audioEl) {
-                audioEl.play().then(() => {
-                    isMusicPlaying = true; 
-                    const mBtn = document.getElementById('musicBtn');
-                    if(mBtn) mBtn.innerHTML = `🎵 <span class="lang-zh">音乐: 开</span><span class="lang-en">BGM: ON</span>`;
-                }).catch(e => {
-                    console.log("Audio play failed:", e); 
-                    alert(t('noMusic')); 
-                    isMusicPlaying = false;
-                    const mBtn = document.getElementById('musicBtn');
-                    if(mBtn) mBtn.innerHTML = `🎵 <span class="lang-zh">音乐: 关</span><span class="lang-en">BGM: OFF</span>`;
+            const volSlider = document.getElementById('volSlider');
+            if(volSlider) {
+                volSlider.addEventListener('input', function(e) {
+                    if(audioEl) audioEl.volume = e.target.value;
+                    if(rollingAudio) rollingAudio.volume = e.target.value;
+                    if(successAudio) successAudio.volume = e.target.value;
+                    saveState(); 
                 });
             }
-        }
 
-        function toggleMusic() {
-            const btn = document.getElementById('musicBtn');
-            if (isMusicPlaying) { 
-                if(audioEl) audioEl.pause(); 
-                if(rollingAudio) rollingAudio.pause();
-                if(successAudio) successAudio.pause();
-                isMusicPlaying = false; 
-                if(btn) btn.innerHTML = `🎵 <span class="lang-zh">音乐: 关</span><span class="lang-en">BGM: OFF</span>`; 
-            } else { 
-                playMusic(); 
+            let musicFileUrl = '';
+            const localBgmInput = document.getElementById('localBgmInput');
+            if(localBgmInput) {
+                localBgmInput.addEventListener('change', function(e) {
+                    const files = Array.from(e.target.files).filter(f => (f.type && f.type.startsWith('audio/')) || /\.(mp3|flac)$/i.test(f.name));
+                    if(files.length > 0) {
+                        if(musicFileUrl) URL.revokeObjectURL(musicFileUrl);
+                        musicFileUrl = URL.createObjectURL(files[0]);
+                        if(audioEl) audioEl.src = musicFileUrl;
+                        updateMusicName(files[0].name);
+                        addSystemRecord(currentLang === 'zh' ? `成功载入音频：${files[0].name}` : `Audio loaded: ${files[0].name}`);
+                        if (!isMusicPlaying) toggleMusic();
+                        else if(audioEl) audioEl.play().catch(err => console.log(err));
+                    } else {
+                        alert(currentLang === 'zh' ? '仅支持 .mp3 或 .flac 格式！' : 'Only .mp3 or .flac supported!');
+                    }
+                });
             }
-            document.body.className = currentLang; 
-        }
+            
+            window.playMusic = function() {
+                if(musicFileUrl && audioEl) audioEl.src = musicFileUrl;
+                if(audioEl) {
+                    audioEl.play().then(() => {
+                        isMusicPlaying = true; 
+                        const mBtn = document.getElementById('musicBtn');
+                        if(mBtn) mBtn.innerHTML = `🎵 <span class="lang-zh">音乐: 开</span><span class="lang-en">BGM: ON</span>`;
+                    }).catch(e => {
+                        console.log("Audio play failed:", e); 
+                        alert(t('noMusic')); 
+                        isMusicPlaying = false;
+                        const mBtn = document.getElementById('musicBtn');
+                        if(mBtn) mBtn.innerHTML = `🎵 <span class="lang-zh">音乐: 关</span><span class="lang-en">BGM: OFF</span>`;
+                    });
+                }
+            }
 
-        function resumeBGMWithFade() {
-            if (!isMusicPlaying || !audioEl) return;
-            audioEl.volume = 0;
-            const playPromise = audioEl.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    const volEl = document.getElementById('volSlider');
-                    const targetVol = volEl ? (parseFloat(volEl.value) || 0.5) : 0.5;
-                    let currentVol = 0;
-                    if (bgmFadeTimer) clearInterval(bgmFadeTimer);
-                    bgmFadeTimer = setInterval(() => {
-                        currentVol += 0.05;
-                        if (currentVol >= targetVol) {
-                            audioEl.volume = targetVol;
-                            clearInterval(bgmFadeTimer);
-                        } else {
-                            audioEl.volume = currentVol;
-                        }
-                    }, 50);
-                }).catch(e => console.log("BGM Resume failed", e));
+            window.toggleMusic = function() {
+                const btn = document.getElementById('musicBtn');
+                if (isMusicPlaying) { 
+                    if(audioEl) audioEl.pause(); 
+                    if(rollingAudio) rollingAudio.pause();
+                    if(successAudio) successAudio.pause();
+                    isMusicPlaying = false; 
+                    if(btn) btn.innerHTML = `🎵 <span class="lang-zh">音乐: 关</span><span class="lang-en">BGM: OFF</span>`; 
+                } else { 
+                    window.playMusic(); 
+                }
+            }
+
+            window.resumeBGMWithFade = function() {
+                if (!isMusicPlaying || !audioEl) return;
+                audioEl.volume = 0;
+                const playPromise = audioEl.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        const volEl = document.getElementById('volSlider');
+                        const targetVol = volEl ? (parseFloat(volEl.value) || 0.62) : 0.62;
+                        let currentVol = 0;
+                        if (bgmFadeTimer) clearInterval(bgmFadeTimer);
+                        bgmFadeTimer = setInterval(() => {
+                            currentVol += 0.05;
+                            if (currentVol >= targetVol) {
+                                audioEl.volume = targetVol;
+                                clearInterval(bgmFadeTimer);
+                            } else {
+                                audioEl.volume = currentVol;
+                            }
+                        }, 50);
+                    }).catch(e => console.log("BGM Resume failed", e));
+                }
             }
         }
 
-        // ================= 7. 拖拽与名单解析引擎 =================
+        // ================= 15. 核心拖拽与名单解析引擎 =================
         function initDragAndDrop() {
+            if (isScreenMode) return; 
+
             const prizeArea = document.getElementById('prizeInputWrap'); 
             const displayArea = document.getElementById('numberDisplay');
             const importBtn = document.getElementById('importBtnUI');
-            const musicBtn = document.getElementById('loadMusicBtn');
-            const importStateBtn = document.getElementById('btnImportState');
+            const musicBtn = document.getElementById('loadMusicBtn'); 
+            const importStateBtn = document.getElementById('btnImportState'); 
 
             if(prizeArea) {
                 prizeArea.addEventListener('dragover', e => { e.preventDefault(); prizeArea.classList.add('drag-active'); });
@@ -1316,7 +1572,7 @@
             saveState();
         }
 
-        // ================= 8. 图片上传与压缩处理 =================
+        // ================= 16. 图片处理与奖项预设引擎 =================
         const prizeImageInput = document.getElementById('prizeImage');
         if (prizeImageInput) {
             prizeImageInput.addEventListener('change', function(e) {
@@ -1380,7 +1636,11 @@
             if(imgPreview) imgPreview.src = ''; 
             if(box) box.style.display = 'none'; 
             if(prizeImg) prizeImg.value = ''; 
-            checkAndSaveActivePreset(); 
+            checkAndSaveActivePreset();
+
+            const pn = document.getElementById('prizeNote');
+            const bn = document.getElementById('batchNum');
+            broadcastPrize(pn ? pn.value.trim() : '', currentStars, null, bn ? bn.value : 1);
         }
         
         const pvImg = document.getElementById('previewImg');
@@ -1402,6 +1662,10 @@
                     if(modalInfo) modalInfo.innerHTML = infoHtml;
                     const imgMod = document.getElementById('imageModal');
                     if(imgMod) imgMod.style.display = 'flex';
+                    
+                    // 💡 [双屏架构] 广播放大图片指令
+                    sendSignal('SHOW_IMAGE_MODAL', { src: this.src, html: infoHtml });
+                    
                     document.activeElement.blur();
                 }
             });
@@ -1410,6 +1674,7 @@
         function closeImageModal() { 
             const m = document.getElementById('imageModal');
             if(m) m.style.display = 'none'; 
+            sendSignal('CLOSE_IMAGE_MODAL', {}); // 💡 [双屏架构] 广播关闭放大图片指令
         }
 
         async function generateThumbnail(sourceB64, maxW, maxH, q) {
@@ -1435,7 +1700,6 @@
             return generateThumbnail(sourceB64, SYS_CONFIG.imageCompression.maxWidth, SYS_CONFIG.imageCompression.maxHeight, SYS_CONFIG.imageCompression.quality);
         }
 
-        // ================= 9. 预设奖池逻辑 =================
         async function checkAndSaveActivePreset() {
             if (!activePresetId || isRunning) return;
             const p = presets.find(x => x.id === activePresetId);
@@ -1491,6 +1755,10 @@
             }
         }
 
+        function broadcastPrize(note, stars, image, batch) {
+            sendSignal('SYNC_PRIZE', { note, stars, image, batch });
+        }
+
         async function handlePresetClick(id) {
             if (isRunning) return;
 
@@ -1502,6 +1770,7 @@
                 activePresetId = null;
                 rollbackToPrePresetState();
                 renderPresets();
+                broadcastPrize('', 0, null, 1); 
                 return;
             }
 
@@ -1540,6 +1809,7 @@
             if(activePresetId === id) {
                 activePresetId = null;
                 rollbackToPrePresetState();
+                broadcastPrize('', 0, null, 1); 
             }
             addSettingRecord(t('logPresetDel'));
             renderPresets();
@@ -1568,6 +1838,8 @@
             };
 
             presets.push(presetObj);
+            const pmEl = document.getElementById('presetModeOnly');
+            if (pmEl) pmEl.checked = true;
             addSettingRecord(t('logPresetAdd', {name: pName}));
             
             activePresetId = null;
@@ -1589,9 +1861,18 @@
 
             renderPresets();
             saveState();
+            broadcastPrize('', 0, null, 1);
         }
 
         function renderPresets() {
+            // 实时统计当前有效（未被抽取）的预设数量
+            const validCount = presets.filter(p => !p.drawn).length;
+            const pmEl = document.getElementById('presetModeOnly');
+            if (pmEl) {
+                // 如果还有有效的预设没抽，自动打勾防误触；如果抽光了或没有预设，自动解开
+                pmEl.checked = validCount > 0;
+            }
+
             const list = document.getElementById('presetList');
             if(!list) return;
             
@@ -1612,12 +1893,13 @@
                 li.onclick = () => handlePresetClick(p.id);
 
                 let starStr = p.stars > 0 ? `<span style="color:#f59e0b">${'★'.repeat(p.stars)}</span>` : '';
-                let batchStr = currentLang === 'zh' ? `${p.batch} 人` : `${p.batch} Ppl`;
+                // 💡 修复 2：控制台页签列表数量标识改为蓝框格式
+                let batchStr = `×${p.batch}`;
                 let imgTag = p.image ? `<img src="${p.image}" class="preset-thumb">` : '';
                 let displayName = p.note || (currentLang === 'zh' ? '未命名奖项' : 'Unnamed Prize');
 
                 li.innerHTML = `
-                    <button class="preset-badge-del" onclick="deletePreset(event, '${p.id}')" title="删除">×</button>
+                    <button class="preset-badge-del" onclick="deletePreset(event, '${p.id}')" title="${currentLang === 'zh' ? '删除' : 'Delete'}">×</button>
                     <div class="preset-seq">${index + 1}</div>
                     <div class="preset-info">
                         <div class="preset-name">${displayName}</div>
@@ -1664,12 +1946,14 @@
 
             activePresetId = id;
             renderPresets();
+            broadcastPrize(p.note, p.stars, currentImageBase64, p.batch); 
             
             const pName = p.note || (currentLang === 'zh' ? '未命名奖项' : 'Unnamed Prize');
-            addYellowRecord(t('logPrize', {val: pName}));
+
+            // addYellowRecord(t('logPrize', {val: pName}));
         }
 
-        // ================= 10. 输入框格式校验与状态绑定 =================
+        // ================= 17. 核心参数校验与系统设置 =================
         function validatePositiveInt(val) { return /^\d+$/.test(val) && Number(val) > 0; }
         
         function setupNumberInput(id, getPrevValue, setPrevValue, isRange) {
@@ -1723,7 +2007,11 @@
                 }
                 saveState();
                 
-                if (id === 'batchNum') checkAndSaveActivePreset();
+                if (id === 'batchNum') {
+                    checkAndSaveActivePreset();
+                    const pn = document.getElementById('prizeNote');
+                    broadcastPrize(pn ? pn.value.trim() : '', currentStars, currentImageBase64, val);
+                }
             });
             el.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); this.blur(); } });
         }
@@ -1786,12 +2074,13 @@
                     lastPrizeNote = val;
                     saveState();
                     checkAndSaveActivePreset(); 
+                    const bn = document.getElementById('batchNum');
+                    broadcastPrize(val, currentStars, currentImageBase64, bn ? bn.value : 1);
                 }
             });
             prizeNoteEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); this.blur(); } });
         }
 
-        // ================= 11. 星级打分控件 =================
         const starElements = document.querySelectorAll('.star-rating .star');
         function renderStars(count) { starElements.forEach((s, i) => { s.textContent = '★'; s.style.color = i < count ? '#f59e0b' : 'var(--border-color)'; s.style.textShadow = i < count ? '0 2px 5px rgba(245,158,11,0.3)' : 'none'; }); }
         starElements.forEach(star => {
@@ -1803,10 +2092,13 @@
                 renderStars(currentStars); 
                 saveState();
                 checkAndSaveActivePreset(); 
+                const pn = document.getElementById('prizeNote');
+                const bn = document.getElementById('batchNum');
+                broadcastPrize(pn ? pn.value.trim() : '', currentStars, currentImageBase64, bn ? bn.value : 1);
             });
         });
 
-        // ================= 12. 快捷键与动画粒子特效 =================
+        // ================= 18. 快捷键与动画粒子特效 =================
         function updateClock() {
             const now = new Date(); const y = now.getFullYear(); const m = String(now.getMonth()+1).padStart(2,'0'); const d = String(now.getDate()).padStart(2,'0');
             const hh = String(now.getHours()).padStart(2,'0'); const mm = String(now.getMinutes()).padStart(2,'0'); const ss = String(now.getSeconds()).padStart(2,'0');
@@ -1814,16 +2106,23 @@
             if(clk) clk.textContent = `${y}-${m}-${d} ${hh}:${mm}:${ss}`; 
             return `${y}-${m}-${d} ${hh}:${mm}:${ss}`; 
         }
-        setInterval(updateClock, 1000);
+        setInterval(updateClock, 1000); 
 
         function isAnyModalOpen() { 
             const rm = document.getElementById('resultModal');
             const pm = document.getElementById('poolModal');
             const im = document.getElementById('imageModal');
-            return (rm && rm.style.display === 'flex') || (pm && pm.style.display === 'flex') || (im && im.style.display === 'flex'); 
+            const pos = document.getElementById('posterOverlay');
+            return (rm && rm.style.display === 'flex') || (pm && pm.style.display === 'flex') || (im && im.style.display === 'flex') || (pos && pos.style.display === 'flex'); 
         }
         
         document.addEventListener('keydown', function(event) {
+            if (isScreenMode) {
+                if (event.code !== 'KeyF' && event.key !== 'F11') {
+                    event.preventDefault();
+                    return;
+                }
+            }
             if (event.key === 'Enter') {
                 const rm = document.getElementById('resultModal');
                 if (rm && rm.style.display === 'flex') {
@@ -1835,6 +2134,8 @@
             
             if (event.code === 'Space') {
                 event.preventDefault();
+                // 如果当前是观众大屏，直接拦截空格键，不允许单独抽奖！
+                if (isScreenMode) return;
                 if (isAnyModalOpen() || isSettling) return; 
                 const cBtn = document.getElementById('controlBtn');
                 if(cBtn) {
@@ -1845,10 +2146,12 @@
             } else if (event.code === 'KeyD') { event.preventDefault(); toggleTheme();
             } else if (event.code === 'KeyF') { event.preventDefault(); toggleFullscreen();
             } else if (event.code === 'KeyM') { event.preventDefault(); toggleMusic();
+            } else if (event.code === 'KeyP') { event.preventDefault(); toggleDirectorMode();
             } else if (event.code === 'Escape') { closePoolModal(); closeImageModal(); }
         });
 
         function createButtonParticles(x, y) {
+            if (isScreenMode) return;
             const colors = isRunning ? ['#ff7675', '#d63031', '#fab1a0', '#ffffff'] : ['#55efc4', '#00b894', '#ffeaa7', '#ffffff'];
             for (let i = 0; i < 25; i++) {
                 const p = document.createElement('div');
@@ -1887,7 +2190,7 @@
             if(active > 0) requestAnimationFrame(renderConfetti); else { confettiActive = false; ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); confettiCanvas.style.display = 'none'; }
         }
 
-        // ================= 13. 核心抽奖随机数与池余量计算 =================
+        // ================= 19. 核心抽奖随机数计算 =================
         function getSecureRandom(min, max) {
             const range = max - min + 1; const maxValid = 4294967295 - (4294967295 % range); 
             let randomArray = new Uint32Array(1); let randomValue;
@@ -1992,11 +2295,12 @@
             globalDrawnHistory = []; 
             drawCount = 0; 
             const nd = document.getElementById('numberDisplay');
-            if(nd) nd.innerHTML = "?"; 
+            if(nd) nd.innerHTML = `<span style="grid-column: 1 / -1; background: transparent; box-shadow: none; border: none; font-size: 100px; color: var(--text-light);">?</span>`;
+            if(isScreenMode) updateWaitingText(); // 💡 双屏待机同步
             updateStatsBoard(); 
         }
 
-        // ================= 14. 抽奖生命周期流转 (Start/Stop) =================
+        // ================= 20. 抽奖生命周期流转 (Start/Stop) =================
         const controlBtn = document.getElementById('controlBtn');
         if(controlBtn) {
             controlBtn.addEventListener('click', function(e) { 
@@ -2009,7 +2313,7 @@
         const numDispEl = document.getElementById('numberDisplay');
         if(numDispEl) {
             numDispEl.addEventListener('dblclick', function() {
-                if (isRunning) return; 
+                if (isRunning || isScreenMode) return; // 💡 大屏禁用双击
                 const stats = getPoolStats(); const poolContent = document.getElementById('poolContent'); 
                 const nrEl = document.getElementById('noRepeat');
                 const noRepeat = nrEl ? nrEl.checked : true;
@@ -2045,19 +2349,28 @@
                             </div>
                         `).join('') + `</div>`;
                 } 
-                else if (count <= 1000) { poolContent.innerHTML = `<div class="pool-text-view">${currentAvailable.join(', ')}</div>`; } 
+                else if (count <= 2000) { poolContent.innerHTML = `<div class="pool-text-view">${currentAvailable.join(', ')}</div>`; } 
                 else { poolContent.innerHTML = `<div class="pool-huge">${t('poolHuge', {n:count})}</div>`; }
                 
                 const pm = document.getElementById('poolModal');
                 if(pm) pm.style.display = 'flex';
+                
+                sendSignal('SHOW_POOL', { title: t('poolTitle', {n: count}), html: poolContent.innerHTML }); // 💡 [双屏架构] 广播池快照
             });
         }
+
+        let screenRollTimer = null; 
 
         function toggleDraw() {
             if (isAnyModalOpen() || isSettling) return;
             const pInput = document.getElementById('prizeNote'); const eInput = document.getElementById('excludeNum');
 
             if (!isRunning) {
+                const pmEl = document.getElementById('presetModeOnly');
+                if (pmEl && pmEl.checked && !activePresetId) {
+                    alert(currentLang === 'zh' ? '🚫 预设安全锁已开启：请先在右侧选择一个 [奖池页签] 再按空格抽奖！' : '🚫 Preset Mode ON: Select a preset tab first!');
+                    return;
+                }
                 if (pInput && !pInput.value) pInput.classList.add('hide-placeholder'); 
                 if (eInput && !eInput.value) eInput.classList.add('hide-placeholder');
                 const stats = getPoolStats(); 
@@ -2109,8 +2422,10 @@
                 } else {
                     maxStrW = String(stats.max).length * 1.1;
                 }
-                maxStrW = Math.max(3, Math.min(maxStrW, 8.5));
+                maxStrW = Math.max(3, Math.min(maxStrW, 15));
                 spanStyle = `width: calc(${maxStrW}ch + 50px);`;
+                
+                sendSignal('START_ROLL', { spanStyle, pool: currentPool, batch: batch });
 
                 timer = setInterval(() => {
                     let temp = ''; 
@@ -2150,7 +2465,7 @@
                 } else {
                     maxStrW = String(stats.max).length * 1.1;
                 }
-                maxStrW = Math.max(3, Math.min(maxStrW, 8.5));
+                maxStrW = Math.max(3, Math.min(maxStrW, 15));
                 let spanStyle = `width: calc(${maxStrW}ch + 50px);`;
 
                 const bEl = document.getElementById('batchNum');
@@ -2169,13 +2484,13 @@
                 const resultStr = finalResults.join(', ');
                 
                 const nd = document.getElementById('numberDisplay');
-                if(nd) {
-                    nd.innerHTML = finalResults.map(n => {
-                        let safeText = String(n).replace(/"/g, '&quot;');
-                        return `<span style="${spanStyle}" title="${safeText}">${safeText}</span>`;
-                    }).join('');
-                }
+                const resultHtml = finalResults.map(n => {
+                    let safeText = String(n).replace(/"/g, '&quot;');
+                    return `<span style="${spanStyle}" title="${safeText}">${safeText}</span>`;
+                }).join('');
+                if(nd) nd.innerHTML = resultHtml;
                 
+                sendSignal('FREEZE_ROLL', { html: resultHtml });
                 let usedPresetId = null;
                 if(activePresetId) {
                     let ap = presets.find(x => x.id === activePresetId);
@@ -2219,6 +2534,8 @@
                     updateLogButtonsLanguage(); 
                 });
 
+                // 💡 心理学黄金停顿：1200 毫秒
+                // 滚轮声音已立刻停止，画面定格。观众大脑有 1.2 秒的时间读取结果，然后才弹出喜报！
                 setTimeout(() => {
                     if (isMusicPlaying && successAudio && successAudio.src && successAudio.src !== window.location.href) {
                         successAudio.currentTime = 0;
@@ -2244,26 +2561,48 @@
                     if(mpi) mpi.innerHTML = pHtml;
                     
                     const mn = document.getElementById('modalNumber');
-                    if(mn) {
-                        mn.innerHTML = finalResults.map(n => {
-                            let safeText = String(n).replace(/"/g, '&quot;');
-                            return `<span style="${spanStyle}" title="${safeText}">${safeText}</span>`;
-                        }).join('');
-                    }
+                    if(mn) mn.innerHTML = resultHtml;
+                    
+                    sendSignal('STOP_ROLL', { 
+                        html: resultHtml, 
+                        prizeHtml: pHtml,
+                        stars: stars 
+                    });
                     
                     const rm = document.getElementById('resultModal');
                     if(rm) { rm.style.display = 'flex'; document.activeElement.blur(); }
                     
+                    // 💡 修复 2：控制台不再喷发彩带（隔离性能给大屏），除非没开导播大屏
                     if (stars > 0) { const sh = document.getElementById('shakeContainer'); if(sh){ sh.classList.add('modal-epic-shake'); setTimeout(() => sh.classList.remove('modal-epic-shake'), 700); } }
-                    if (stars === 5) fireConfettiEngine();
+                    if (stars === 5 && (!directorWin || directorWin.closed)) fireConfettiEngine(); 
                     
                     isSettling = false; 
                     saveState(); 
-                }, 200);
+                }, 1200);
             }
         }
 
-        // ================= 15. 审计日志、作废恢复与导出 =================
+        // ================= 21. 审计日志引擎 =================
+        function closeResultModal() { 
+            const m = document.getElementById('resultModal'); 
+            if(m) m.style.display = 'none'; 
+            
+            const nd = document.getElementById('numberDisplay');
+            if(nd) nd.innerHTML = "?"; 
+            if(isScreenMode) {
+                updateWaitingText(); // 让大屏变回等待抽奖
+            }
+
+            sendSignal('SYNC_PRIZE', { note: '', stars: 0, image: null, batch: 1 });
+            sendSignal('CLOSE_MODAL', {}); 
+        }
+
+        function closePoolModal() { 
+            const m = document.getElementById('poolModal'); 
+            if(m) m.style.display = 'none'; 
+            sendSignal('CLOSE_POOL', {}); 
+        }
+
         function resetPoolWithPrompt() {
             if (isRunning) return;
             if (!confirm(t('alertReset'))) return;
@@ -2276,6 +2615,7 @@
             const stats = getPoolStats();
             addSystemRecord(t('logReset', {rem: stats.remaining, tot: stats.total}));
             saveState();
+            sendSignal('RESET_POOL', {}); // 💡 [双屏架构] 广播重置指令
         }
 
         window.toggleInvalidate = function(internalId, rawNums) {
@@ -2341,6 +2681,7 @@
                         if (activePresetId === p.id) {
                             activePresetId = null;
                             rollbackToPrePresetState();
+                            broadcastPrize('', 0, null, 1);
                         }
                         renderPresets();
                     }
@@ -2436,9 +2777,6 @@
             }
         };
 
-        function closeResultModal() { const m = document.getElementById('resultModal'); if(m) m.style.display = 'none'; }
-        function closePoolModal() { const m = document.getElementById('poolModal'); if(m) m.style.display = 'none'; }
-
         function addSystemRecord(msg) {
             const e = document.getElementById('emptyHint'); if(e) e.remove(); const timeStr = updateClock();
             globalAuditLogs.push({ internalId: null, time: timeStr, type: 'Sys', round: '-', content: msg, prize: '-', stars: '-', poolInfo: '-', image: null, invalidated: false });
@@ -2479,7 +2817,7 @@
             globalAuditLogs.forEach(r => {
                 let safeContent = r.invalidated ? `[作废/Void] ${r.content}` : r.content;
                 let status = r.invalidated ? "Invalidated" : "Valid";
-                let safePoolInfo = `="${r.poolInfo}"`; 
+                let safePoolInfo = `="${r.poolInfo}"`;
                 let safeHash = r.seedHash ? `"${r.seedHash}"` : "";
                 csv += `${r.time},${r.type},${r.round},"${safeContent.replace(/"/g,'""')}","${r.prize.replace(/"/g,'""')}",${r.stars},${safePoolInfo},${status},${safeHash}\n`;
             });
@@ -2609,19 +2947,256 @@
             let resSuffix = currentLang === 'zh' ? '抽奖结果' : 'Results';
             let downloadName = `${safeTitleForFile}_${resSuffix}_${dStr}.png`;
             
+            const broadcastDataUrl = canvas.toDataURL('image/webp', 0.6);
+            sendSignal('SHOW_POSTER', { image: broadcastDataUrl });
+            
             const link = document.createElement('a'); link.download = downloadName; link.href = canvas.toDataURL('image/png'); link.click();
         }
 
-        // ================= 16. 初始化 =================
+        // ================= 22. 导播模式双屏通信引擎 =================
+        function sendSignal(action, payload) {
+            if (isScreenMode) return; 
+            localStorage.setItem('pro_lottery_signal', JSON.stringify({ action, payload, ts: Date.now() }));
+        }
+
+        function toggleDirectorMode() {
+            const btn = document.getElementById('btnDirector');
+            if (!directorWin || directorWin.closed) {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                directorWin = window.open(window.location.href.split('?')[0] + '?mode=screen&theme=' + currentTheme, 'LotteryScreen', 'width=1280,height=720');
+
+                if(btn) {
+                    // 💡 修复：同时注入中英双语标签，不破坏 DOM 结构
+                    btn.innerHTML = '<span class="lang-zh">🔴 退出大屏</span><span class="lang-en">🔴 CLOSE SCREEN</span>';
+                    btn.style.color = '#e74c3c';
+                }
+                
+                if(directorCheckInterval) clearInterval(directorCheckInterval);
+                directorCheckInterval = setInterval(() => {
+                    if(directorWin && directorWin.closed) {
+                        directorWin = null;
+                        if(btn) {
+                            // 💡 修复：同时注入中英双语标签
+                            btn.innerHTML = '<span class="lang-zh">📺 导播大屏</span><span class="lang-en">📺 DIRECTOR</span>';
+                            btn.style.color = '';
+                        }
+                        clearInterval(directorCheckInterval);
+                    }
+                }, 1000);
+                
+                setTimeout(() => {
+                    const pn = document.getElementById('prizeNote');
+                    const bn = document.getElementById('batchNum');
+                    broadcastPrize(pn ? pn.value.trim() : '', currentStars, currentImageBase64, bn ? bn.value : 1);
+                    sendSignal('THEME', document.documentElement.getAttribute('data-theme'));
+                    sendSignal('LANG', currentLang);
+                }, 1000); 
+                
+            } else {
+                sendSignal('CLOSE_SCREEN', {});
+                directorWin.close();
+                directorWin = null;
+                if(btn) {
+                    // 💡 修复：同时注入中英双语标签
+                    btn.innerHTML = '<span class="lang-zh">📺 导播大屏</span><span class="lang-en">📺 DIRECTOR</span>';
+                    btn.style.color = '';
+                }
+                if(directorCheckInterval) clearInterval(directorCheckInterval);
+            }
+        }
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'pro_lottery_signal' && e.newValue) {
+                const signal = JSON.parse(e.newValue);
+                if (isScreenMode) executeSignal(signal);
+            }
+        });
+
+        function executeSignal(signal) {
+            const { action, payload } = signal;
+            switch(action) {
+                case 'THEME': 
+                    document.documentElement.setAttribute('data-theme', payload); 
+                    const disp = document.getElementById('numberDisplay');
+                    if(disp) disp.style.background = payload==='dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.05)';
+                    break;
+                case 'LANG':
+                    currentLang = payload;
+                    document.body.classList.remove('zh', 'en');
+                    document.body.classList.add(currentLang);
+                    updateWaitingText();
+                    break;
+                case 'SYNC_PRIZE':
+                    const spp = document.getElementById('screenPrizePreview');
+                    if(payload.note || payload.stars > 0 || payload.image) {
+                        const sStr = payload.stars > 0 ? `<span style="color:#f59e0b; margin-left:15px; text-shadow: 0 4px 10px rgba(245,158,11,0.4);">${'★'.repeat(payload.stars)}</span>` : '';
+                        const nStr = payload.note ? `🎁 ${payload.note}` : '';
+                        const bStr = `<span class="preset-badge" style="font-size:38px; font-weight:900; vertical-align:middle; margin-left:15px; padding:4px 15px; background: rgba(52, 152, 219, 0.15); color: #2980b9; border: 1px solid rgba(52, 152, 219, 0.3); border-radius: 8px;">×${payload.batch || 1}</span>`;
+                        const imgHtml = payload.image ? `<img src="${payload.image}" style="margin-top:25px;">` : '';
+                        if(spp) {
+                            spp.innerHTML = `<div class="prize-title" style="display:flex; align-items:center; justify-content:center;">${nStr}${sStr}${bStr}</div>${imgHtml}`;
+                            spp.style.display = 'flex';
+                        }
+                    } else {
+                        if(spp) spp.style.display = 'none';
+                        updateWaitingText();
+                    }
+                    break;
+                case 'START_ROLL':
+                    closeResultModal();
+                    const po = document.getElementById('posterOverlay');
+                    if(po) po.style.display = 'none';
+                    const pm = document.getElementById('poolModal');
+                    if(pm) pm.style.display = 'none';
+                    const im = document.getElementById('imageModal');
+                    if(im) im.style.display = 'none';
+                    
+                    const { spanStyle, pool, batch } = payload;
+                    if(screenRollTimer) clearInterval(screenRollTimer);
+                    screenRollTimer = setInterval(() => {
+                        let temp = '';
+                        for(let i=0; i<batch; i++) {
+                            let randItem = pool[Math.floor(Math.random()*pool.length)];
+                            let safeText = String(randItem).replace(/"/g, '&quot;');
+                            temp += `<span style="${spanStyle}">${safeText}</span>`;
+                        }
+                        const nd = document.getElementById('numberDisplay');
+                        if(nd) nd.innerHTML = temp;
+                    }, 40);
+                    break;
+                case 'FREEZE_ROLL':
+                    if(screenRollTimer) clearInterval(screenRollTimer);
+                    const ndFreeze = document.getElementById('numberDisplay');
+                    if(ndFreeze) ndFreeze.innerHTML = payload.html;
+                    break;
+                case 'STOP_ROLL':
+                    if(screenRollTimer) clearInterval(screenRollTimer);
+                    const ndFinal = document.getElementById('numberDisplay');
+                    if(ndFinal) ndFinal.innerHTML = payload.html;
+                    
+                    const mpInfo = document.getElementById('modalPrizeInfo');
+                    if(mpInfo) mpInfo.innerHTML = payload.prizeHtml;
+                    
+                    const mNum = document.getElementById('modalNumber');
+                    if(mNum) mNum.innerHTML = payload.html;
+                    
+                    const rModal = document.getElementById('resultModal');
+                    if(rModal) rModal.style.display = 'flex';
+                    
+                    if (payload.stars > 0) { 
+                        const sh = document.getElementById('shakeContainer'); 
+                        if(sh) {
+                            sh.classList.add('modal-epic-shake'); 
+                            setTimeout(() => sh.classList.remove('modal-epic-shake'), 700); 
+                        }
+                    }
+                    if (payload.stars === 5) fireConfettiEngine();
+                    break;
+                case 'SHOW_POOL':
+                    const pTitle = document.getElementById('poolCountTitle');
+                    if(pTitle) pTitle.innerHTML = payload.title;
+                    const pContent = document.getElementById('poolContent');
+                    if(pContent) pContent.innerHTML = payload.html;
+                    const plModal = document.getElementById('poolModal');
+                    if(plModal) plModal.style.display = 'flex';
+                    break;
+                case 'CLOSE_POOL':
+                    closePoolModal();
+                    break;
+                case 'SHOW_IMAGE_MODAL':
+                    const lpi = document.getElementById('largePreviewImg');
+                    if(lpi) lpi.src = payload.src;
+                    const modalInfo = document.getElementById('imageModalPrizeInfo');
+                    if(modalInfo) modalInfo.innerHTML = payload.html;
+                    const imgMod = document.getElementById('imageModal');
+                    if(imgMod) imgMod.style.display = 'flex';
+                    break;
+                case 'CLOSE_IMAGE_MODAL':
+                    const cIm = document.getElementById('imageModal');
+                    if(cIm) cIm.style.display = 'none';
+                    break;
+                case 'CLOSE_MODAL':
+                    closeResultModal();
+                    break;
+                case 'SHOW_POSTER':
+                    const poImg = document.getElementById('posterOverlayImg');
+                    if(poImg) poImg.src = payload.image;
+                    const pOverlay = document.getElementById('posterOverlay');
+                    if(pOverlay) pOverlay.style.display = 'flex';
+                    break;
+                case 'CLOSE_POSTER':
+                    const poClose = document.getElementById('posterOverlay');
+                    if(poClose) poClose.style.display = 'none';
+                    break;
+                case 'RESET_POOL':
+                    performSilentReset();
+                    break;
+                case 'CLOSE_SCREEN':
+                    window.close();
+                    break;
+            }
+        }
+
+        // ================= 23. OS 系统级深色模式探测引擎 =================
+        function initOSThemeDetection() {
+            const mediaQuery = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+            if (!mediaQuery) return;
+
+            // 核心逻辑：优先听导播手动切换的，如果没有手动干预，就老老实实听操作系统的
+            const manualTheme = localStorage.getItem('pro_lottery_manual_theme');
+            if (manualTheme) {
+                updateThemeUI(manualTheme);
+            } else {
+                updateThemeUI(mediaQuery.matches ? 'dark' : 'light');
+            }
+
+            // 实时监听系统变化（如 macOS 到晚上自动变暗）
+            mediaQuery.addEventListener('change', e => {
+                if (!localStorage.getItem('pro_lottery_manual_theme')) {
+                    const sysTheme = e.matches ? 'dark' : 'light';
+                    updateThemeUI(sysTheme);
+                    if(!isScreenMode) sendSignal('THEME', sysTheme);
+                }
+            });
+        }
+
+        // ================= 24. 初始化 =================
         window.onload = () => { 
             initGlobalConfig(); 
+            initOSThemeDetection(); // 💡 确保主题最先被注入
             updateTooltips(); 
             updateStatsBoard(); 
             updateClock(); 
-            document.body.className = currentLang; 
-            loadState(); 
+            document.body.classList.remove('zh', 'en');
+            document.body.classList.add(currentLang);
+            
+            // 💡 修复：无论有没有历史缓存，初次打开都强制同步一次当前的模式 UI！
+            toggleListModeUI(isCustomPool);
             initDragAndDrop(); 
+            
+            if (!isScreenMode && directorWin && !directorWin.closed) {
+                updateDirectorBtn(true);
+            }
+
+            // 💡 终极防闪烁修复：延迟 100 毫秒执行弹窗，给显卡一点时间把黑色背景先画出来！
+            setTimeout(() => {
+                loadState(); 
+            }, 100);
         };
+        
+        function updateDirectorBtn(isOpen) {
+            const btn = document.getElementById('btnDirector');
+            if(!btn) return;
+            if (isOpen) {
+                // 💡 修复：同时保留双语
+                btn.innerHTML = '<span class="lang-zh">🔴 退出大屏</span><span class="lang-en">🔴 CLOSE SCREEN</span>';
+                btn.style.color = '#e74c3c';
+            } else {
+                // 💡 修复：同时保留双语
+                btn.innerHTML = '<span class="lang-zh">📺 导播大屏</span><span class="lang-en">📺 DIRECTOR</span>';
+                btn.style.color = '';
+            }
+        }
     </script>
 </body>
 </html>
