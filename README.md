@@ -6,7 +6,7 @@
 ![Offline Sandbox](https://img.shields.io/badge/100%25_Offline_Sandbox-3498db?style=for-the-badge)
 ![CSPRNG Secure](https://img.shields.io/badge/Security-CSPRNG_Engine-8e44ad?style=for-the-badge)
 
-Lottery Pro 是一款**纯前端（SPA）、零依赖、开箱即用**的轻量级无服务器抽奖系统。可用于解决各类年会、展会活动及发布会中的抽奖需要，同时提供跨屏同步的多媒体交互体验。
+Lottery Pro 是一款**纯前端（SPA）、零依赖、开箱即用**的轻量级无服务器抽奖系统。可用于满足各类年会、展会活动及发布会中的抽奖需要，同时提供跨屏同步的多媒体交互体验。
 
 无需繁琐的数据库配置，无需安装任何服务端环境。**下载单个 `HTML` 文件，双击即可运行。**
 
