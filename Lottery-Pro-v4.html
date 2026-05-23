@@ -423,7 +423,7 @@
             
             /* 设定安全边界值：默认汉字时不小于 600px，最长工号时不大于 1100px */
             min-width: 600px;
-            max-width: 1400px;
+            max-width: 92vw;
         }
         [data-theme="dark"] .screen-mode .display { background: rgba(0,0,0,0.2); }
         
@@ -509,7 +509,7 @@
     <div class="top-controls" id="topNavArea">
         <a class="top-btn" href="https://github.com/T1MESX/Lottery-Pro" target="_blank" title="GitHub Repository" id="navGithub">
             <svg height="18" viewBox="0 0 16 16" width="18" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-            <span id="versionText">v4.2.0</span>
+            <span id="versionText">v4.2.2</span>
         </a>
         <span class="nav-sep">|</span>
         <span class="top-btn" id="btnExportState" onclick="exportState()">
@@ -825,7 +825,7 @@
     <script>
         // ================= 8. 全局统一配置 =================
         const SYS_CONFIG = {
-            version: "v4.2.0",
+            version: "v4.2.2",
             tag: "", 
             
             imageCompression: {
@@ -1035,7 +1035,7 @@
                     wrapper.style.padding = '0 5%';
                 }
 
-                // 强制拔除声带
+                // 去除音频
                 const audios = document.querySelectorAll('audio');
                 audios.forEach(a => a.remove());
                 
@@ -2434,12 +2434,25 @@
                 }
                 
                 if (isMusicPlaying) {
-                    if(audioEl) audioEl.pause();
                     if(successAudio) successAudio.pause(); 
-                    if (rollingAudio && rollingAudio.src && rollingAudio.src !== window.location.href) {
+                    
+                    // 💡 智能音频引擎 1：嗅探摇奖音效是否存在 (避免空白src或自身URL)
+                    let hasRolling = rollingAudio && rollingAudio.src && rollingAudio.src !== window.location.href;
+                    
+                    if (hasRolling) {
                         rollingAudio.currentTime = 0;
-                        rollingAudio.play().catch(e => { console.warn('Rolling SFX prevented.'); });
+                        let playPromise = rollingAudio.play();
+                        if (playPromise !== undefined) {
+                            playPromise.then(() => {
+                                // 💡 终极修复：只有文件真实存在且开始发声了，才让 BGM 暂停。
+                                if (audioEl && !audioEl.paused) audioEl.pause(); 
+                            }).catch(e => { 
+                                console.warn('Rolling SFX missing or blocked.'); 
+                                // 播放失败，当作无事发生。因为 BGM 根本没有被暂停，所以音量绝对不会下降！
+                            });
+                        }
                     }
+                    // 注：如果没有 rolling.mp3，这里完全不会触碰 audioEl.pause()，BGM 将完美贯穿摇奖全过程！
                 }
 
                 let maxStrW = 0;
@@ -2461,19 +2474,23 @@
                 if (batch === 1) optimalCols = 1;
                 else if (batch === 2) optimalCols = 2;
                 else if (batch === 3) optimalCols = 3;
-                else if (batch === 4) optimalCols = 2; // 4人排 2x2 矩阵最美观
-                else if (batch === 5) optimalCols = 5; 
-                else if (batch === 6) optimalCols = 3; // 6人排 3x2 矩阵
-                else if (batch === 7 || batch === 8) optimalCols = 4;
-                else if (batch === 9 || batch === 10) optimalCols = 5; // 10个人排 5x2 矩阵，完美利用屏幕
-                else if (batch >= 11 && batch <= 12) optimalCols = 4;
-                else optimalCols = 5; // 大于12人，保底5列铺开
+                else if (batch === 4) optimalCols = 4; // 💡 4个排成一行
+                else if (batch === 5) optimalCols = 3; // 💡 5个强制排成 3+2
+                else if (batch === 6 || batch === 9) optimalCols = 3;
+                else if (batch === 7 || batch === 8 || batch === 11 || batch === 12) optimalCols = 4;
+                else optimalCols = 5;
 
-                // 物理屏幕防爆：如果检测到是长工号，强制降维，强行缩减列数防止撑爆屏幕
-                if (maxStrW >= 12) optimalCols = Math.min(optimalCols, 2); 
-                else if (maxStrW >= 8) optimalCols = Math.min(optimalCols, 3);
-                else if (maxStrW >= 5) optimalCols = Math.min(optimalCols, 4);
-                else optimalCols = Math.min(optimalCols, 6);
+                // 💡物理屏幕防爆：大幅放宽普通汉字的列数限制，仅对真正的长工号严厉降维
+                if (maxStrW >= 16) optimalCols = Math.min(optimalCols, 2); 
+                else if (maxStrW >= 12) optimalCols = Math.min(optimalCols, 3);
+                else if (maxStrW >= 9.5) optimalCols = Math.min(optimalCols, 4);
+                else optimalCols = Math.min(optimalCols, 5);
+
+                // 💡防单吊均衡器：如果排布后最后一行只有 1 个元素，主动减少列数使其排布更均匀
+                // （例如：5个人原本排4列变4+1，会被此算法自动拦截并修正为排3列，即优美的 3+2 阵型）
+                while (optimalCols > 2 && batch % optimalCols === 1) {
+                    optimalCols--;
+                }
 
                 if (batch < optimalCols) optimalCols = batch;
 
@@ -2595,16 +2612,30 @@
                 // 💡 心理学黄金停顿：1200 毫秒
                 // 滚轮声音已立刻停止，画面定格。观众大脑有 1.2 秒的时间读取结果，然后才弹出喜报！
                 setTimeout(() => {
-                    if (isMusicPlaying && successAudio && successAudio.src && successAudio.src !== window.location.href) {
+                    // 💡 智能音频引擎 2：先尝试播放开奖音效
+                    let hasSuccess = successAudio && successAudio.src && successAudio.src !== window.location.href;
+                    
+                    if (isMusicPlaying && hasSuccess) {
                         successAudio.currentTime = 0;
-                        successAudio.play().then(() => {
-                            successAudio.onended = () => { resumeBGMWithFade(); successAudio.onended = null; };
-                        }).catch(e => { 
-                            console.warn('Success SFX prevented or missing.'); 
-                            resumeBGMWithFade(); 
-                        });
+                        let playPromise = successAudio.play();
+                        if (playPromise !== undefined) {
+                            playPromise.then(() => {
+                                // 💡 终极修复：只有礼花真实响起，才强行暂停 BGM
+                                if (audioEl && !audioEl.paused) audioEl.pause(); 
+                                
+                                const delay = successAudio.duration ? (successAudio.duration * 1000) : 3000;
+                                setTimeout(() => {
+                                    if (!isRunning && audioEl && audioEl.paused) resumeBGMWithFade();
+                                }, delay);
+                            }).catch(e => { 
+                                console.warn('Success SFX missing or blocked.'); 
+                                // 礼花播放失败，立刻恢复 BGM，防止音量突然下降
+                                if (!isRunning && audioEl && audioEl.paused) resumeBGMWithFade(); 
+                            });
+                        }
                     } else {
-                        resumeBGMWithFade();
+                        // 根本没有配礼花，BGM 保持继续播放
+                        if (!isRunning && audioEl && audioEl.paused) resumeBGMWithFade();
                     }
 
                     let pHtml = '';
@@ -2963,7 +2994,7 @@
             ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.strokeStyle = 'rgba(251, 191, 36, 0.1)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(60, 60); ctx.lineTo(1110, 60); 
             ctx.lineTo(1110, predictedY); ctx.lineTo(60, predictedY); ctx.closePath(); ctx.stroke();
-
+            
             ctx.fillStyle = '#fde68a'; ctx.font = 'bold 55px "Microsoft YaHei", sans-serif'; ctx.textAlign = 'center';
             let currentY = 130;
             for(let line of titleLines) {
